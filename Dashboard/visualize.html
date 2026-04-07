@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NeuroNavi Data Visualization — Game-themed analytics visuals.">
+    <title>NeuroNavi — Data Visualization</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* ═══════════════════════════════════
+           GAME HUD THEME — NEON / CYBERPUNK
+        ═══════════════════════════════════ */
+        :root {
+            --bg: #030508;
+            --bg2: #080c14;
+            --bg-panel: rgba(8, 12, 20, 0.9);
+            --bg-glass: rgba(255, 255, 255, 0.015);
+
+            --neon-blue: #00d4ff;
+            --neon-blue-dim: rgba(0, 212, 255, 0.12);
+            --neon-green: #00ff88;
+            --neon-green-dim: rgba(0, 255, 136, 0.1);
+            --neon-red: #ff3366;
+            --neon-red-dim: rgba(255, 51, 102, 0.1);
+            --neon-purple: #b44aff;
+            --neon-purple-dim: rgba(180, 74, 255, 0.1);
+            --neon-orange: #ff9500;
+            --neon-orange-dim: rgba(255, 149, 0, 0.1);
+            --neon-yellow: #ffe600;
+
+            --text: #c9d1d9;
+            --text2: #6e7681;
+            --text3: #3d444d;
+            --text-bright: #ffffff;
+
+            --border: rgba(0, 212, 255, 0.08);
+            --border-glow: rgba(0, 212, 255, 0.25);
+            --border-panel: rgba(0, 212, 255, 0.12);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Cyberpunk Background ── */
+        .bg-scene {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        .bg-scene::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0, 212, 255, 0.04), transparent 60%),
+                radial-gradient(ellipse 80% 50% at 20% 100%, rgba(180, 74, 255, 0.03), transparent 50%),
+                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(0, 255, 136, 0.02), transparent 50%);
+        }
+
+        /* Animated scan lines */
+        .bg-scene::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 212, 255, 0.008) 2px,
+                rgba(0, 212, 255, 0.008) 4px
+            );
+            animation: scanMove 8s linear infinite;
+        }
+
+        @keyframes scanMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Grid overlay */
+        .bg-hex {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.015) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* ── Layout ── */
+        .app {
+            position: relative; z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 24px 80px;
+        }
+
+        /* ── Navigation (HUD style) ── */
+        .hud-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 14px 24px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
+            border-radius: 4px;
+            position: relative;
+            animation: panelIn 0.5s ease-out;
+        }
+
+        /* Corner accents */
+        .hud-nav::before, .hud-nav::after {
+            content: '';
+            position: absolute;
+            width: 16px; height: 16px;
+            border-color: var(--neon-blue);
+            border-style: solid;
+        }
+
+        .hud-nav::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .hud-nav::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        .hud-brand {
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px; font-weight: 800;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .hud-brand .icon {
+            width: 28px; height: 28px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.2), inset 0 0 8px rgba(0, 212, 255, 0.05);
+        }
+
+        .hud-links { display: flex; gap: 4px; }
+
+        .hud-link {
+            padding: 7px 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            text-decoration: none;
+            color: var(--text2);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .hud-link:hover {
+            color: var(--neon-blue);
+            border-color: var(--border);
+            background: var(--neon-blue-dim);
+        }
+
+        .hud-link.active {
+            color: var(--neon-blue);
+            border-color: var(--border-glow);
+            background: var(--neon-blue-dim);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.1);
+            text-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 36px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .page-header .hud-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 9px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            color: var(--neon-green);
+            margin-bottom: 12px;
+        }
+
+        .page-header .hud-tag .pulse-ring {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 4px var(--neon-green); transform: scale(1); }
+            50% { box-shadow: 0 0 12px var(--neon-green), 0 0 24px rgba(0, 255, 136, 0.2); transform: scale(1.2); }
+        }
+
+        .page-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(22px, 4vw, 36px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-bright);
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+        }
+
+        .page-header p {
+            font-size: 13px; color: var(--text2); margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        /* ── Load Button (HUD style) ── */
+        .hud-action {
+            display: flex; align-items: center; justify-content: center;
+            gap: 14px; margin-bottom: 36px;
+            animation: fadeSlide 0.5s ease-out 0.1s both;
+        }
+
+        .hud-btn {
+            padding: 12px 32px;
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', monospace;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+        }
+
+        .hud-btn:hover {
+            background: var(--neon-blue-dim);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .hud-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .status-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; color: var(--text2);
+        }
+
+        .status-text.ok { color: var(--neon-green); }
+        .status-text.err { color: var(--neon-red); }
+        .status-text.load { color: var(--neon-blue); }
+
+        /* ── Section Headers ── */
+        .sec-hud {
+            display: none; margin-bottom: 32px;
+        }
+
+        .sec-hud.show {
+            display: block;
+            animation: fadeSlide 0.5s ease-out;
+        }
+
+        .sec-bar {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--neon-blue);
+        }
+
+        .sec-bar .line {
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--border-panel), transparent);
+        }
+
+        .sec-bar .tag {
+            padding: 3px 8px;
+            border: 1px solid var(--border-panel);
+            font-size: 8px; color: var(--text3);
+        }
+
+        /* ── HUD Stat Panels ── */
+        .hud-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .hud-stat {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
+            padding: 20px 18px;
+            position: relative;
+            opacity: 0; transform: translateY(12px);
+            transition: all 0.4s ease-out;
+        }
+
+        .hud-stat.in { opacity: 1; transform: translateY(0); }
+
+        .hud-stat:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.06);
+        }
+
+        /* Corner cuts */
+        .hud-stat::before {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            border-style: solid;
+            border-width: 0 12px 12px 0;
+            border-color: transparent var(--bg) transparent transparent;
+        }
+
+        .hud-stat .s-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--text3);
+            margin-bottom: 10px;
+        }
+
+        .hud-stat .s-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 26px; font-weight: 900;
+            letter-spacing: 0.02em;
+            line-height: 1;
+        }
+
+        .hud-stat .s-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; color: var(--text3); margin-top: 6px;
+        }
+
+        /* Stat bar */
+        .s-bar {
+            margin-top: 14px; width: 100%; height: 3px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .s-bar-fill {
+            height: 100%; width: 0%;
+            transition: width 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nc { color: var(--neon-blue); }
+        .ng { color: var(--neon-green); }
+        .nr { color: var(--neon-red); }
+        .no { color: var(--neon-orange); }
+        .np { color: var(--neon-purple); }
+
+        .bc { background: var(--neon-blue); box-shadow: 0 0 6px rgba(0, 212, 255, 0.4); }
+        .bg_ { background: var(--neon-green); box-shadow: 0 0 6px rgba(0, 255, 136, 0.4); }
+        .br { background: var(--neon-red); box-shadow: 0 0 6px rgba(255, 51, 102, 0.4); }
+        .bo { background: var(--neon-orange); box-shadow: 0 0 6px rgba(255, 149, 0, 0.4); }
+        .bp { background: var(--neon-purple); box-shadow: 0 0 6px rgba(180, 74, 255, 0.4); }
+
+        /* ── Chart Panels ── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .chart-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
+            padding: 24px;
+            position: relative;
+        }
+
+        .chart-panel.wide { grid-column: 1 / -1; }
+
+        .chart-panel:hover {
+            border-color: var(--border-glow);
+        }
+
+        /* Corner brackets on chart panels */
+        .chart-panel::before, .chart-panel::after {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            border-color: var(--neon-blue);
+            border-style: solid;
+            opacity: 0.4;
+        }
+
+        .chart-panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+        .chart-panel::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+        .chart-panel .ch-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .chart-panel .ch-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; color: var(--text3);
+            margin-bottom: 18px;
+        }
+
+        .ch-wrap {
+            position: relative; width: 100%;
+        }
+
+        .ch-wrap canvas { width: 100% !important; }
+
+        /* Donut center */
+        .donut-box { position: relative; max-width: 200px; margin: 0 auto; }
+
+        .donut-label {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-label .dl-big {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px; font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .donut-label .dl-sm {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px; color: var(--text3);
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+
+        /* ── Performance Gauge ── */
+        .gauge-section {
+            margin-top: 16px;
+        }
+
+        .gauge-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .gauge-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .gauge-ring {
+            position: relative;
+            width: 100px; height: 100px;
+            margin: 0 auto 12px;
+        }
+
+        .gauge-ring canvas { width: 100% !important; height: 100% !important; }
+
+        .gauge-ring .g-val {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 18px; font-weight: 900;
+        }
+
+        .gauge-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px; color: var(--text3);
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+
+        /* ── Footer ── */
+        .hud-footer {
+            text-align: center; margin-top: 48px; padding-top: 20px;
+            border-top: 1px solid var(--border-panel);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px; color: var(--text3);
+            letter-spacing: 0.04em;
+        }
+
+        .hud-footer a { color: var(--neon-blue); text-decoration: none; }
+        .hud-footer a:hover { text-shadow: 0 0 6px rgba(0, 212, 255, 0.4); }
+
+        /* ── Animations ── */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes panelIn { from { opacity: 0; transform: scaleX(0.95); } to { opacity: 1; transform: scaleX(1); } }
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 4px currentColor; } 50% { box-shadow: 0 0 16px currentColor; } }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .app { padding: 16px 12px 60px; }
+            .hud-nav { flex-direction: column; gap: 10px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .gauge-grid { grid-template-columns: 1fr; }
+            .hud-stats { grid-template-columns: 1fr 1fr; }
+            .hud-stat .s-val { font-size: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="bg-scene"></div>
+<div class="bg-hex"></div>
+
+<div class="app">
+
+    <!-- HUD Navigation -->
+    <nav class="hud-nav">
+        <div class="hud-brand">
+            <div class="icon">N</div>
+            NeuroNavi
+        </div>
+        <div class="hud-links">
+            <a href="index.html" class="hud-link">// Dashboard</a>
+            <a href="visualize.html" class="hud-link active">// Visualize</a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="hud-tag">
+            <span class="pulse-ring"></span>
+            System Online — Data Feed Active
+        </div>
+        <h1>Data Visualization</h1>
+        <p>[ analytics.render() — navi_island.game_stats ]</p>
+    </header>
+
+    <!-- Load -->
+    <div class="hud-action">
+        <button class="hud-btn" id="loadBtn" onclick="loadData()">▶ Initialize Data</button>
+        <span class="status-text" id="statusText">awaiting_command...</span>
+    </div>
+
+    <!-- Performance Metrics -->
+    <section class="sec-hud" id="secMetrics">
+        <div class="sec-bar">
+            <span>◆</span> Performance Metrics
+            <span class="line"></span>
+            <span class="tag">REAL-TIME</span>
+        </div>
+        <div class="hud-stats" id="metricsGrid">
+            <div class="hud-stat"><div class="s-label">▸ Sessions</div><div class="s-val nc" id="mSess">0</div><div class="s-sub">total recorded</div><div class="s-bar"><div class="s-bar-fill bc" id="mSessBar"></div></div></div>
+            <div class="hud-stat"><div class="s-label">▸ Avg Time</div><div class="s-val no" id="mAvg">0s</div><div class="s-sub">per session</div><div class="s-bar"><div class="s-bar-fill bo" id="mAvgBar"></div></div></div>
+            <div class="hud-stat"><div class="s-label">▸ Best Time</div><div class="s-val ng" id="mBest">0s</div><div class="s-sub">record speed</div><div class="s-bar"><div class="s-bar-fill bg_" id="mBestBar"></div></div></div>
+            <div class="hud-stat"><div class="s-label">▸ Worst Time</div><div class="s-val nr" id="mWorst">0s</div><div class="s-sub">slowest run</div><div class="s-bar"><div class="s-bar-fill br" id="mWorstBar"></div></div></div>
+            <div class="hud-stat"><div class="s-label">▸ Total Fails</div><div class="s-val nr" id="mFails">0</div><div class="s-sub">accumulated</div><div class="s-bar"><div class="s-bar-fill br" id="mFailsBar"></div></div></div>
+            <div class="hud-stat"><div class="s-label">▸ Completions</div><div class="s-val ng" id="mComp">0</div><div class="s-sub">total achieved</div><div class="s-bar"><div class="s-bar-fill bg_" id="mCompBar"></div></div></div>
+        </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="sec-hud" id="secCharts">
+        <div class="sec-bar">
+            <span>◆</span> Data Analysis
+            <span class="line"></span>
+            <span class="tag">CHART.JS</span>
+        </div>
+
+        <div class="chart-grid">
+            <!-- Timeline -->
+            <div class="chart-panel wide">
+                <div class="ch-title">◈ Session Timeline</div>
+                <div class="ch-sub">time_per_session // trend analysis</div>
+                <div class="ch-wrap" style="height:280px"><canvas id="cTime"></canvas></div>
+            </div>
+
+            <!-- Fails Bar -->
+            <div class="chart-panel">
+                <div class="ch-title">◈ Fail Analysis</div>
+                <div class="ch-sub">fails_per_session // bar chart</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cFails"></canvas></div>
+            </div>
+
+            <!-- Completion Donut -->
+            <div class="chart-panel">
+                <div class="ch-title">◈ Completion Rate</div>
+                <div class="ch-sub">completed_vs_incomplete // ratio</div>
+                <div class="ch-wrap">
+                    <div class="donut-box">
+                        <canvas id="cDonut"></canvas>
+                        <div class="donut-label">
+                            <div class="dl-big" id="donutPct">—</div>
+                            <div class="dl-sm">completed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fail Distribution -->
+            <div class="chart-panel">
+                <div class="ch-title">◈ Fail Distribution</div>
+                <div class="ch-sub">frequency_map // horizontal</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cFailDist"></canvas></div>
+            </div>
+
+            <!-- Time Histogram -->
+            <div class="chart-panel">
+                <div class="ch-title">◈ Time Distribution</div>
+                <div class="ch-sub">session_time_buckets // histogram</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cTimeDist"></canvas></div>
+            </div>
+
+            <!-- Cumulative Performance -->
+            <div class="chart-panel wide">
+                <div class="ch-title">◈ Performance Trend</div>
+                <div class="ch-sub">cumulative_avg_time // moving performance</div>
+                <div class="ch-wrap" style="height:240px"><canvas id="cPerf"></canvas></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Gauges -->
+    <section class="sec-hud" id="secGauges">
+        <div class="sec-bar">
+            <span>◆</span> Performance Gauges
+            <span class="line"></span>
+            <span class="tag">RATING</span>
+        </div>
+        <div class="gauge-grid">
+            <div class="gauge-card">
+                <div class="gauge-ring">
+                    <canvas id="gSpeed"></canvas>
+                    <div class="g-val ng" id="gSpeedVal">—</div>
+                </div>
+                <div class="gauge-name">Speed Score</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-ring">
+                    <canvas id="gAccuracy"></canvas>
+                    <div class="g-val nc" id="gAccVal">—</div>
+                </div>
+                <div class="gauge-name">Accuracy Score</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-ring">
+                    <canvas id="gOverall"></canvas>
+                    <div class="g-val np" id="gOverallVal">—</div>
+                </div>
+                <div class="gauge-name">Overall Rating</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="hud-footer">
+        [ neuronavi.analytics ] — unity → supabase → web — <a href="#">navi_island</a> — v1.0
+    </footer>
+</div>
+
+<script>
+// ═══════════════════════════════
+// CONFIG
+// ═══════════════════════════════
+const SUPA_URL = "https://armtgguvlpmkkjniqvli.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
+
+let charts = {};
+let cachedData = null;  // Store fetched data for scroll-triggered rendering
+
+// Track which sections have already animated (so they don't re-trigger)
+const animated = { metrics: false, charts: false, gauges: false };
+
+// Chart.js theme
+Chart.defaults.color = "#6e7681";
+Chart.defaults.borderColor = "rgba(0, 212, 255, 0.04)";
+Chart.defaults.font.family = "'JetBrains Mono', 'Inter', monospace";
+Chart.defaults.font.size = 10;
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.animation.duration = 1600;
+Chart.defaults.animation.easing = "easeOutQuart";
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+const loadBtn = document.getElementById("loadBtn");
+const statusEl = document.getElementById("statusText");
+
+window.addEventListener("DOMContentLoaded", loadData);
+
+// ═══════════════════════════════
+// HELPERS
+// ═══════════════════════════════
+function status(msg, cls) {
+    statusEl.className = `status-text ${cls}`;
+    statusEl.textContent = msg;
+}
+
+function animNum(el, end, dur = 1200, dec = 0, suf = "") {
+    const t0 = performance.now();
+    (function f(now) {
+        const p = Math.min((now - t0) / dur, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        el.textContent = (end * e).toFixed(dec) + suf;
+        if (p < 1) requestAnimationFrame(f);
+    })(t0);
+}
+
+function animBar(el, pct, delay = 0) {
+    setTimeout(() => { el.style.width = Math.min(pct, 100) + "%"; }, delay);
+}
+
+function stagger(id) {
+    document.querySelectorAll(`#${id} .hud-stat`).forEach((c, i) => {
+        setTimeout(() => c.classList.add("in"), i * 80);
+    });
+}
+
+// Tooltip theme
+const tooltipOpts = {
+    backgroundColor: "rgba(8, 12, 20, 0.95)",
+    borderColor: "rgba(0, 212, 255, 0.2)",
+    borderWidth: 1,
+    titleFont: { family: "'Orbitron', monospace", size: 10, weight: 700 },
+    bodyFont: { family: "'JetBrains Mono', monospace", size: 10 },
+    titleColor: "#00d4ff",
+    padding: 10,
+    cornerRadius: 2,
+};
+
+// ═══════════════════════════════════════════
+// INTERSECTION OBSERVER — Scroll animations
+// ═══════════════════════════════════════════
+const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting || !cachedData) return;
+
+        const id = entry.target.id;
+
+        if (id === "secMetrics" && !animated.metrics) {
+            animated.metrics = true;
+            triggerMetrics(cachedData);
+        }
+
+        if (id === "secCharts" && !animated.charts) {
+            animated.charts = true;
+            triggerCharts(cachedData);
+        }
+
+        if (id === "secGauges" && !animated.gauges) {
+            animated.gauges = true;
+            triggerGauges(cachedData);
+        }
+    });
+}, {
+    // Trigger when 15% of the section is visible
+    threshold: 0.15,
+    rootMargin: "0px 0px -50px 0px"
+});
+
+// Observe all sections
+["secMetrics", "secCharts", "secGauges"].forEach(id => {
+    scrollObserver.observe(document.getElementById(id));
+});
+
+// ═══════════════════════════════
+// LOAD DATA (silently, no animations)
+// ═══════════════════════════════
+async function loadData() {
+    status("loading_data...", "load");
+    loadBtn.disabled = true;
+
+    // Reset everything
+    animated.metrics = false;
+    animated.charts = false;
+    animated.gauges = false;
+    cachedData = null;
+
+    document.querySelectorAll(".hud-stat").forEach(c => c.classList.remove("in"));
+    document.querySelectorAll(".s-bar-fill").forEach(b => b.style.width = "0%");
+    Object.values(charts).forEach(c => c?.destroy());
+    charts = {};
+
+    // Hide sections but keep them in DOM for observer
+    ["secMetrics", "secCharts", "secGauges"].forEach(id => {
+        document.getElementById(id).classList.remove("show");
+    });
+
+    try {
+        const res = await fetch(`${SUPA_URL}/rest/v1/game_stats?order=created_at.desc`, {
+            headers: { "apikey": SUPA_KEY, "Authorization": `Bearer ${SUPA_KEY}`, "Content-Type": "application/json" }
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+            status("no_data_found — play your game first", "err");
+            loadBtn.disabled = false;
+            return;
+        }
+
+        status(`data_loaded: ${data.length} sessions — scroll down ▼`, "ok");
+
+        // Store data and make sections visible (but no animations yet)
+        cachedData = data;
+
+        // Show section containers (display:block) so they're in the page flow
+        ["secMetrics", "secCharts", "secGauges"].forEach(id => {
+            document.getElementById(id).classList.add("show");
+        });
+
+        // Check if any sections are already in viewport (e.g. first section)
+        // by re-triggering the observer
+        ["secMetrics", "secCharts", "secGauges"].forEach(id => {
+            const el = document.getElementById(id);
+            scrollObserver.unobserve(el);
+            scrollObserver.observe(el);
+        });
+
+    } catch (e) {
+        status(`error: ${e.message}`, "err");
+        console.error(e);
+    } finally {
+        loadBtn.disabled = false;
+    }
+}
+
+// ═══════════════════════════════════════════
+// SCROLL-TRIGGERED RENDER FUNCTIONS
+// These only fire when the section scrolls in
+// ═══════════════════════════════════════════
+
+// ── METRICS (triggered on scroll) ──
+function triggerMetrics(data) {
+    const n = data.length;
+    const totF = data.reduce((s, d) => s + (d.fails || 0), 0);
+    const avgT = data.reduce((s, d) => s + (d.time || 0), 0) / n;
+    const totC = data.reduce((s, d) => s + (d.timesCompleted || 0), 0);
+    const bestT = Math.min(...data.map(d => d.time || Infinity));
+    const worstT = Math.max(...data.map(d => d.time || 0));
+
+    // Animated number counters
+    animNum(document.getElementById("mSess"), n, 800, 0);
+    animNum(document.getElementById("mAvg"), avgT, 1200, 1, "s");
+    animNum(document.getElementById("mBest"), bestT, 1000, 2, "s");
+    animNum(document.getElementById("mWorst"), worstT, 1000, 2, "s");
+    animNum(document.getElementById("mFails"), totF, 1000, 0);
+    animNum(document.getElementById("mComp"), totC, 1000, 0);
+
+    // Animated progress bars
+    animBar(document.getElementById("mSessBar"), (n / 50) * 100, 200);
+    animBar(document.getElementById("mAvgBar"), (avgT / 120) * 100, 300);
+    animBar(document.getElementById("mBestBar"), (bestT / worstT) * 100, 400);
+    animBar(document.getElementById("mWorstBar"), 100, 500);
+    animBar(document.getElementById("mFailsBar"), (totF / Math.max(n * 5, 10)) * 100, 600);
+    animBar(document.getElementById("mCompBar"), (totC / Math.max(n, 10)) * 100, 700);
+
+    // Staggered card entrance
+    stagger("metricsGrid");
+}
+
+// ── CHARTS (triggered on scroll) ──
+function triggerCharts(data) {
+    Object.values(charts).forEach(c => c?.destroy());
+    charts = {};
+
+    const chrono = [...data].reverse();
+    const labels = chrono.map((_, i) => `S${i + 1}`);
+
+    // ── Time Line ──
+    const timeData = chrono.map(d => d.time || 0);
+    const avgLine = timeData.reduce((a, b) => a + b, 0) / timeData.length;
+
+    charts.time = new Chart(document.getElementById("cTime"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Time",
+                    data: timeData,
+                    borderColor: "#00d4ff",
+                    backgroundColor: "rgba(0, 212, 255, 0.06)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: "#00d4ff",
+                    pointBorderColor: "#030508",
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: "#fff",
+                },
+                {
+                    label: "Average",
+                    data: timeData.map(() => avgLine),
+                    borderColor: "rgba(255, 149, 0, 0.5)",
+                    borderWidth: 1.5,
+                    borderDash: [5, 3],
+                    pointRadius: 0,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: { display: true, position: "top", labels: { boxWidth: 10, padding: 14, font: { size: 9, weight: 700, family: "'Orbitron', monospace" }, color: "#6e7681" } },
+                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s` } }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(0,212,255,0.03)" }, ticks: { callback: v => v + "s", font: { size: 9 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+
+    // ── Fails Bar ──
+    const failsData = chrono.map(d => d.fails || 0);
+
+    charts.fails = new Chart(document.getElementById("cFails"), {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                data: failsData,
+                backgroundColor: failsData.map(f => f === 0 ? "rgba(0,255,136,0.5)" : f <= 3 ? "rgba(255,149,0,0.5)" : "rgba(255,51,102,0.5)"),
+                borderColor: failsData.map(f => f === 0 ? "#00ff88" : f <= 3 ? "#ff9500" : "#ff3366"),
+                borderWidth: 1,
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            plugins: { tooltip: tooltipOpts },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+
+    // ── Completion Donut ──
+    const comp = data.filter(d => (d.timesCompleted || 0) >= 1).length;
+    const noComp = data.length - comp;
+    const pct = ((comp / data.length) * 100).toFixed(0);
+    document.getElementById("donutPct").textContent = pct + "%";
+
+    charts.donut = new Chart(document.getElementById("cDonut"), {
+        type: "doughnut",
+        data: {
+            labels: ["Completed", "Incomplete"],
+            datasets: [{
+                data: [comp, noComp],
+                backgroundColor: ["rgba(0,255,136,0.6)", "rgba(255,51,102,0.2)"],
+                borderColor: ["#00ff88", "rgba(255,51,102,0.4)"],
+                borderWidth: 2,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            cutout: "75%",
+            plugins: {
+                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed} (${((ctx.parsed / data.length) * 100).toFixed(0)}%)` } }
+            }
+        }
+    });
+
+    // ── Fail Distribution ──
+    const fMap = {};
+    data.forEach(d => { const f = d.fails || 0; fMap[f] = (fMap[f] || 0) + 1; });
+    const fKeys = Object.keys(fMap).map(Number).sort((a, b) => a - b);
+
+    charts.fDist = new Chart(document.getElementById("cFailDist"), {
+        type: "bar",
+        data: {
+            labels: fKeys.map(k => k + " fails"),
+            datasets: [{
+                data: fKeys.map(k => fMap[k]),
+                backgroundColor: "rgba(180, 74, 255, 0.4)",
+                borderColor: "#b44aff",
+                borderWidth: 1,
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            plugins: { tooltip: tooltipOpts },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
+                y: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+
+    // ── Time Distribution ──
+    const times = data.map(d => d.time || 0);
+    const minT = Math.floor(Math.min(...times));
+    const maxT = Math.ceil(Math.max(...times));
+    const bSize = Math.max(Math.ceil((maxT - minT) / 6), 5);
+    const buckets = {};
+
+    for (const t of times) {
+        const bs = Math.floor((t - minT) / bSize) * bSize + minT;
+        const lbl = `${bs}-${bs + bSize}s`;
+        buckets[lbl] = (buckets[lbl] || 0) + 1;
+    }
+
+    charts.tDist = new Chart(document.getElementById("cTimeDist"), {
+        type: "bar",
+        data: {
+            labels: Object.keys(buckets),
+            datasets: [{
+                data: Object.values(buckets),
+                backgroundColor: "rgba(0, 212, 255, 0.35)",
+                borderColor: "#00d4ff",
+                borderWidth: 1,
+                borderRadius: 3,
+            }]
+        },
+        options: {
+            plugins: { tooltip: tooltipOpts },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+
+    // ── Cumulative Avg (Performance Trend) ──
+    const cumAvg = [];
+    let runSum = 0;
+    chrono.forEach((d, i) => {
+        runSum += d.time || 0;
+        cumAvg.push(runSum / (i + 1));
+    });
+
+    charts.perf = new Chart(document.getElementById("cPerf"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "Cumulative Avg",
+                data: cumAvg,
+                borderColor: "#b44aff",
+                backgroundColor: "rgba(180, 74, 255, 0.06)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3,
+                pointBackgroundColor: "#b44aff",
+                pointBorderColor: "#030508",
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: true, labels: { boxWidth: 10, font: { size: 9, weight: 700, family: "'Orbitron', monospace" }, color: "#6e7681" } },
+                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s avg` } }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(0,212,255,0.03)" }, ticks: { callback: v => v.toFixed(0) + "s", font: { size: 9 } } },
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+            }
+        }
+    });
+}
+
+// ── GAUGES (triggered on scroll) ──
+function triggerGauges(data) {
+    const n = data.length;
+    const avgT = data.reduce((s, d) => s + (d.time || 0), 0) / n;
+    const avgF = data.reduce((s, d) => s + (d.fails || 0), 0) / n;
+    const compRate = data.filter(d => (d.timesCompleted || 0) >= 1).length / n;
+
+    const speedScore = Math.max(0, Math.min(100, ((60 - avgT) / 50) * 100));
+    const accScore = Math.max(0, Math.min(100, ((5 - avgF) / 5) * 100));
+    const overall = speedScore * 0.35 + accScore * 0.35 + compRate * 100 * 0.30;
+
+    makeGauge("gSpeed", speedScore, "#00ff88", "#0a1a10");
+    makeGauge("gAccuracy", accScore, "#00d4ff", "#081218");
+    makeGauge("gOverall", overall, "#b44aff", "#120a18");
+
+    animNum(document.getElementById("gSpeedVal"), speedScore, 1400, 0);
+    animNum(document.getElementById("gAccVal"), accScore, 1400, 0);
+    animNum(document.getElementById("gOverallVal"), overall, 1400, 0);
+}
+
+function makeGauge(canvasId, value, color, bgColor) {
+    const ctx = document.getElementById(canvasId);
+    if (charts[canvasId]) charts[canvasId].destroy();
+
+    charts[canvasId] = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            datasets: [{
+                data: [value, 100 - value],
+                backgroundColor: [color, bgColor],
+                borderWidth: 0,
+                hoverOffset: 0,
+            }]
+        },
+        options: {
+            cutout: "78%",
+            rotation: -90,
+            circumference: 180,
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { tooltip: { enabled: false } },
+            animation: { duration: 1800, easing: "easeOutQuart" }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
