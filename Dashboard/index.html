@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="NeuroNavi Game Analytics Dashboard — View gameplay stats, completion times, and fail counts.">
+    <title>NeuroNavi — Game Analytics Dashboard</title>
+
+    <!-- Google Font: Inter for clean modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ============================
+           CSS CUSTOM PROPERTIES
+        ============================ */
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --accent-primary: #6366f1;
+            --accent-secondary: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+
+            --success: #22c55e;
+            --success-bg: rgba(34, 197, 94, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(99, 102, 241, 0.3);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px var(--accent-glow);
+        }
+
+        /* ============================
+           RESET & BASE
+        ============================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ============================
+           ANIMATED BACKGROUND
+        ============================ */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .bg-gradient-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            top: -200px;
+            right: -100px;
+            background: var(--accent-primary);
+            animation: orbFloat 12s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            bottom: -200px;
+            left: -100px;
+            background: #8b5cf6;
+            animation: orbFloat 15s ease-in-out infinite reverse;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 15px) scale(0.95);
+            }
+        }
+
+        /* ============================
+           LAYOUT
+        ============================ */
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ============================
+           HEADER
+        ============================ */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .header-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .header h1 {
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* ============================
+           ACTION SECTION
+        ============================ */
+        .action-section {
+            margin-bottom: 40px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .action-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .action-text strong {
+            color: var(--text-primary);
+        }
+
+        .fetch-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent-primary), #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fetch-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .fetch-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .fetch-btn:hover::before {
+            opacity: 1;
+        }
+
+        .fetch-btn:active {
+            transform: translateY(0);
+        }
+
+        .fetch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ============================
+           FEEDBACK MESSAGES
+        ============================ */
+        .message {
+            margin-top: 16px;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.visible {
+            display: flex;
+        }
+
+        .message.error {
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .message.info {
+            background: var(--warning-bg);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .message.loading {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            color: var(--accent-secondary);
+        }
+
+        .message.success {
+            background: var(--success-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        /* ============================
+           SUMMARY CARDS
+        ============================ */
+        .summary-section {
+            margin-bottom: 32px;
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .summary-section.visible {
+            display: block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .summary-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .val-accent {
+            color: var(--accent-secondary);
+        }
+
+        .val-success {
+            color: var(--success);
+        }
+
+        .val-danger {
+            color: var(--danger);
+        }
+
+        .val-warning {
+            color: var(--warning);
+        }
+
+        /* ============================
+           RESULTS TABLE
+        ============================ */
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.5s ease-out 0.1s both;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .results-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .results-count {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .table-wrapper {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        tbody td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .td-time {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .td-fails {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+        }
+
+        .fails-zero {
+            color: var(--success);
+        }
+
+        .fails-low {
+            color: var(--warning);
+        }
+
+        .fails-high {
+            color: var(--danger);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .badge-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-warning {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .td-date {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ============================
+           FOOTER
+        ============================ */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================
+           ANIMATIONS
+        ============================ */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+
+        /* ============================
+           RESPONSIVE
+        ============================ */
+        @media (max-width: 600px) {
+            .app-wrapper {
+                padding: 24px 16px 60px;
+            }
+
+            .action-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .fetch-btn {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            thead th,
+            tbody td {
+                padding: 12px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-gradient-orb orb-1"></div>
+    <div class="bg-gradient-orb orb-2"></div>
+
+    <div class="app-wrapper">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">
+                <span class="dot"></span>
+                Live Analytics
+            </div>
+            <h1>NeuroNavi Dashboard</h1>
+            <p>View all gameplay sessions from Navi Island in real-time</p>
+        </header>
+
+        <!-- Fetch All Button -->
+        <section class="action-section">
+            <div class="action-card">
+                <div class="action-text">
+                    <strong>Load all game sessions</strong> from Supabase to see time, fails, and completion stats.
+                </div>
+                <button id="fetchBtn" class="fetch-btn" onclick="fetchAllStats()">
+                    🔄 Load Stats
+                </button>
+            </div>
+            <div class="message" id="message"></div>
+        </section>
+
+        <!-- Summary Cards -->
+        <section class="summary-section" id="summarySection">
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon">🎮</div>
+                    <div class="summary-value val-accent" id="totalSessions">—</div>
+                    <div class="summary-label">Total Sessions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">⏱️</div>
+                    <div class="summary-value val-warning" id="avgTime">—</div>
+                    <div class="summary-label">Avg. Time (s)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">✅</div>
+                    <div class="summary-value val-success" id="totalCompleted">—</div>
+                    <div class="summary-label">Total Completions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">💥</div>
+                    <div class="summary-value val-danger" id="totalFails">—</div>
+                    <div class="summary-label">Total Fails</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Table -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <div class="results-title">Session History</div>
+                <div class="results-count" id="resultsCount"></div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Time (sec)</th>
+                            <th>Fails</th>
+                            <th>Times Completed</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            NeuroNavi Analytics &mdash; Unity &rarr; Supabase &rarr; Web &mdash; Built for <a href="#">Navi Island</a>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION — Your Supabase credentials
+        // ============================================================
+        const SUPABASE_URL = "https://armtgguvlpmkkjniqvli.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
+
+        // ============================================================
+        // DOM REFERENCES
+        // ============================================================
+        const fetchBtn = document.getElementById("fetchBtn");
+        const messageEl = document.getElementById("message");
+        const summarySection = document.getElementById("summarySection");
+        const resultsSection = document.getElementById("resultsSection");
+        const tableBody = document.getElementById("tableBody");
+        const resultsCount = document.getElementById("resultsCount");
+
+        // Auto-load stats on page open
+        window.addEventListener("DOMContentLoaded", fetchAllStats);
+
+        // ============================================================
+        // SHOW MESSAGE HELPER
+        // ============================================================
+        function showMessage(text, type = "info") {
+            messageEl.className = `message visible ${type}`;
+            messageEl.innerHTML = type === "loading"
+                ? `<span class="spinner"></span> ${text}`
+                : text;
+        }
+
+        function hideMessage() {
+            messageEl.className = "message";
+        }
+
+        // ============================================================
+        // FETCH ALL STATS FROM SUPABASE (no player_id filter)
+        // ============================================================
+        async function fetchAllStats() {
+            showMessage("Fetching stats…", "loading");
+            fetchBtn.disabled = true;
+            summarySection.classList.remove("visible");
+            resultsSection.classList.remove("visible");
+
+            try {
+                // Get ALL rows, newest first
+                const url = `${SUPABASE_URL}/rest/v1/game_stats?order=created_at.desc`;
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    showMessage("🔍 No game sessions found yet. Play the game in Unity to generate data!", "info");
+                    fetchBtn.disabled = false;
+                    return;
+                }
+
+                // Success
+                showMessage(`✅ Loaded ${data.length} session${data.length !== 1 ? 's' : ''} from Supabase`, "success");
+                renderSummary(data);
+                renderTable(data);
+
+            } catch (err) {
+                showMessage(`❌ Failed to fetch data: ${escapeHtml(err.message)}`, "error");
+                console.error("[Dashboard] Fetch error:", err);
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // RENDER SUMMARY CARDS
+        // ============================================================
+        function renderSummary(data) {
+            const totalSessions = data.length;
+            const totalFails = data.reduce((sum, d) => sum + (d.fails || 0), 0);
+            const avgTime = (data.reduce((sum, d) => sum + (d.time || 0), 0) / totalSessions).toFixed(1);
+            const totalCompleted = data.reduce((sum, d) => sum + (d.timesCompleted || 0), 0);
+
+            document.getElementById("totalSessions").textContent = totalSessions;
+            document.getElementById("avgTime").textContent = avgTime;
+            document.getElementById("totalCompleted").textContent = totalCompleted;
+            document.getElementById("totalFails").textContent = totalFails;
+
+            summarySection.classList.add("visible");
+        }
+
+        // ============================================================
+        // RENDER TABLE ROWS
+        // ============================================================
+        function renderTable(data) {
+            resultsCount.textContent = `${data.length} session${data.length !== 1 ? 's' : ''} found`;
+
+            tableBody.innerHTML = data.map((row, i) => {
+                // Fail severity color
+                const failClass = row.fails === 0 ? "fails-zero"
+                    : row.fails <= 3 ? "fails-low"
+                        : "fails-high";
+
+                // Times completed badge
+                const completed = row.timesCompleted || 0;
+                let completedBadge;
+                if (completed >= 1) {
+                    completedBadge = `<span class="badge badge-success">✓ ${completed}x</span>`;
+                } else {
+                    completedBadge = `<span class="badge badge-danger">✗ 0</span>`;
+                }
+
+                // Format date
+                const date = row.created_at
+                    ? new Date(row.created_at).toLocaleDateString("en-US", {
+                        month: "short", day: "numeric", year: "numeric",
+                        hour: "2-digit", minute: "2-digit"
+                    })
+                    : "—";
+
+                return `
+                <tr>
+                    <td style="color: var(--text-muted); font-size:12px">${i + 1}</td>
+                    <td class="td-time">${(row.time || 0).toFixed(2)}s</td>
+                    <td class="td-fails ${failClass}">${row.fails}</td>
+                    <td>${completedBadge}</td>
+                    <td class="td-date">${date}</td>
+                </tr>
+            `;
+            }).join("");
+
+            resultsSection.classList.add("visible");
+        }
+
+        // ============================================================
+        // UTILITY: Escape HTML to prevent XSS
+        // ============================================================
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+
+</body>
+
+</html>
