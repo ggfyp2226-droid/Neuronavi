@@ -4,656 +4,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NeuroNavi Data Visualization — Game-themed analytics visuals.">
-    <title>NeuroNavi — Data Visualization</title>
+    <meta name="description" content="NeuroNavi Data Visualization — Charts and analytics from Unity gameplay.">
+    <title>NeuroNavi — Visualize</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <style>
-        /* ═══════════════════════════════════
-           GAME HUD THEME — NEON / CYBERPUNK
-        ═══════════════════════════════════ */
+        /* ═════════════════════════════
+           SAME THEME AS DASHBOARD
+        ═════════════════════════════ */
         :root {
-            --bg: #030508;
-            --bg2: #080c14;
-            --bg-panel: rgba(8, 12, 20, 0.9);
-            --bg-glass: rgba(255, 255, 255, 0.015);
-
-            --neon-blue: #00d4ff;
-            --neon-blue-dim: rgba(0, 212, 255, 0.12);
-            --neon-green: #00ff88;
-            --neon-green-dim: rgba(0, 255, 136, 0.1);
-            --neon-red: #ff3366;
-            --neon-red-dim: rgba(255, 51, 102, 0.1);
-            --neon-purple: #b44aff;
-            --neon-purple-dim: rgba(180, 74, 255, 0.1);
-            --neon-orange: #ff9500;
-            --neon-orange-dim: rgba(255, 149, 0, 0.1);
-            --neon-yellow: #ffe600;
-
-            --text: #c9d1d9;
-            --text2: #6e7681;
-            --text3: #3d444d;
-            --text-bright: #ffffff;
-
-            --border: rgba(0, 212, 255, 0.08);
-            --border-glow: rgba(0, 212, 255, 0.25);
-            --border-panel: rgba(0, 212, 255, 0.12);
+            --bg: #06080f; --bg2: #0d1117; --bg-card: rgba(13,17,23,0.85);
+            --bg-glass: rgba(255,255,255,0.02);
+            --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
+            --accent: #6366f1; --accent2: #818cf8; --accent-g: rgba(99,102,241,0.15);
+            --green: #3fb950; --green-bg: rgba(63,185,80,0.1);
+            --red: #f85149; --red-bg: rgba(248,81,73,0.1);
+            --orange: #d29922; --orange-bg: rgba(210,153,34,0.1);
+            --cyan: #58a6ff; --cyan-bg: rgba(88,166,255,0.1);
+            --purple: #bc8cff; --purple-bg: rgba(188,140,255,0.1);
+            --border: rgba(255,255,255,0.06); --border-h: rgba(99,102,241,0.3);
+            --r: 12px; --rl: 16px;
         }
 
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family:'Inter',system-ui,sans-serif;
+            background:var(--bg); color:var(--text);
+            min-height:100vh; line-height:1.6;
         }
 
-        /* ── Cyberpunk Background ── */
-        .bg-scene {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
-        }
-
-        .bg-scene::before {
-            content: '';
-            position: absolute; inset: 0;
+        /* ── Background ── */
+        .bg-fx {
+            position:fixed; inset:0; z-index:0; pointer-events:none;
             background:
-                radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0, 212, 255, 0.04), transparent 60%),
-                radial-gradient(ellipse 80% 50% at 20% 100%, rgba(180, 74, 255, 0.03), transparent 50%),
-                radial-gradient(ellipse 60% 40% at 90% 80%, rgba(0, 255, 136, 0.02), transparent 50%);
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,0.06), transparent);
         }
 
-        /* Animated scan lines */
-        .bg-scene::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 212, 255, 0.008) 2px,
-                rgba(0, 212, 255, 0.008) 4px
-            );
-            animation: scanMove 8s linear infinite;
-        }
-
-        @keyframes scanMove {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
-        }
-
-        /* Grid overlay */
-        .bg-hex {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        .bg-grid {
+            position:fixed; inset:0; z-index:0; pointer-events:none;
             background-image:
-                linear-gradient(rgba(0, 212, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 255, 0.015) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(99,102,241,0.02) 1px, transparent 1px),
+                linear-gradient(90deg,rgba(99,102,241,0.02) 1px, transparent 1px);
+            background-size:48px 48px;
         }
 
-        /* ── Layout ── */
-        .app {
-            position: relative; z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 28px 24px 80px;
+        .app { position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
+
+        /* ── Nav (identical to dashboard) ── */
+        .nav {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:36px; animation:fadeIn .5s ease-out;
         }
 
-        /* ── Navigation (HUD style) ── */
-        .hud-nav {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 32px;
-            padding: 14px 24px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-panel);
-            border-radius: 4px;
-            position: relative;
-            animation: panelIn 0.5s ease-out;
+        .nav-brand {
+            display:flex; align-items:center; gap:10px;
+            font-size:16px; font-weight:800; letter-spacing:-0.02em;
         }
 
-        /* Corner accents */
-        .hud-nav::before, .hud-nav::after {
-            content: '';
-            position: absolute;
-            width: 16px; height: 16px;
-            border-color: var(--neon-blue);
-            border-style: solid;
+        .nav-brand .logo {
+            width:32px; height:32px; border-radius:8px;
+            background:linear-gradient(135deg, var(--accent), #7c3aed);
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; color:#fff;
         }
 
-        .hud-nav::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
-        .hud-nav::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+        .nav-links { display:flex; gap:6px; }
 
-        .hud-brand {
-            display: flex; align-items: center; gap: 10px;
-            font-family: 'Orbitron', monospace;
-            font-size: 14px; font-weight: 800;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        .nav-link {
+            padding:8px 18px; border-radius:8px;
+            font-size:13px; font-weight:600;
+            text-decoration:none; color:var(--text2);
+            border:1px solid transparent;
+            transition:all .2s ease;
         }
 
-        .hud-brand .icon {
-            width: 28px; height: 28px;
-            border: 2px solid var(--neon-blue);
-            border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-            box-shadow: 0 0 8px rgba(0, 212, 255, 0.2), inset 0 0 8px rgba(0, 212, 255, 0.05);
+        .nav-link:hover { color:var(--text); background:var(--bg-glass); border-color:var(--border); }
+        .nav-link.active { color:var(--accent2); background:var(--accent-g); border-color:var(--border-h); }
+
+        /* ── Hero ── */
+        .hero {
+            text-align:center; margin-bottom:40px;
+            animation:fadeSlide .6s ease-out;
         }
 
-        .hud-links { display: flex; gap: 4px; }
-
-        .hud-link {
-            padding: 7px 16px;
-            font-family: 'Orbitron', monospace;
-            font-size: 10px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            text-decoration: none;
-            color: var(--text2);
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
+        .hero-chip {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:5px 14px; background:var(--bg-glass);
+            border:1px solid var(--border); border-radius:100px;
+            font-size:11px; font-weight:600; color:var(--accent2);
+            letter-spacing:.6px; text-transform:uppercase; margin-bottom:14px;
         }
 
-        .hud-link:hover {
-            color: var(--neon-blue);
-            border-color: var(--border);
-            background: var(--neon-blue-dim);
+        .hero-chip .dot {
+            width:6px; height:6px; border-radius:50%;
+            background:var(--green); box-shadow:0 0 6px var(--green);
+            animation:blink 2s ease-in-out infinite;
         }
 
-        .hud-link.active {
-            color: var(--neon-blue);
-            border-color: var(--border-glow);
-            background: var(--neon-blue-dim);
-            box-shadow: 0 0 12px rgba(0, 212, 255, 0.1);
-            text-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        .hero h1 {
+            font-size:clamp(26px,4.5vw,40px); font-weight:900; letter-spacing:-.03em;
+            background:linear-gradient(135deg,#fff 30%,var(--accent2));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
         }
 
-        /* ── Page Header ── */
-        .page-header {
-            text-align: center;
-            margin-bottom: 36px;
-            animation: fadeIn 0.6s ease-out;
+        .hero p { font-size:14px; color:var(--text2); margin-top:6px; }
+
+        /* ── Action Bar ── */
+        .action-bar {
+            display:flex; align-items:center; justify-content:space-between; gap:16px;
+            background:var(--bg-card); border:1px solid var(--border);
+            border-radius:var(--r); padding:20px 28px; margin-bottom:32px;
+            animation:fadeSlide .5s ease-out .1s both;
         }
 
-        .page-header .hud-tag {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-family: 'Orbitron', monospace;
-            font-size: 9px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.12em;
-            color: var(--neon-green);
-            margin-bottom: 12px;
+        .action-bar p { font-size:14px; color:var(--text2); }
+        .action-bar strong { color:var(--text); }
+
+        .btn {
+            padding:12px 28px; background:linear-gradient(135deg,var(--accent),#7c3aed);
+            color:#fff; border:none; border-radius:10px;
+            font-family:inherit; font-size:13px; font-weight:700;
+            cursor:pointer; transition:all .2s ease; white-space:nowrap;
         }
 
-        .page-header .hud-tag .pulse-ring {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--neon-green);
-            box-shadow: 0 0 8px var(--neon-green);
-            animation: pulse 1.5s ease-in-out infinite;
+        .btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(99,102,241,.35); }
+        .btn:active { transform:translateY(0); }
+        .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+        /* ── Messages ── */
+        .msg {
+            margin-top:12px; padding:12px 18px; border-radius:10px;
+            font-size:13px; font-weight:500; display:none; align-items:center; gap:8px;
         }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 4px var(--neon-green); transform: scale(1); }
-            50% { box-shadow: 0 0 12px var(--neon-green), 0 0 24px rgba(0, 255, 136, 0.2); transform: scale(1.2); }
+        .msg.show { display:flex; animation:fadeIn .3s ease-out; }
+        .msg.loading { background:var(--accent-g); border:1px solid rgba(99,102,241,.15); color:var(--accent2); }
+        .msg.success { background:var(--green-bg); border:1px solid rgba(63,185,80,.2); color:var(--green); }
+        .msg.error { background:var(--red-bg); border:1px solid rgba(248,81,73,.2); color:var(--red); }
+        .msg.info { background:var(--orange-bg); border:1px solid rgba(210,153,34,.2); color:var(--orange); }
+
+        .spinner { width:14px; height:14px; border:2px solid transparent; border-top-color:currentColor; border-radius:50%; animation:spin .5s linear infinite; display:inline-block; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* ── Sections ── */
+        .sec {
+            margin-bottom:36px;
+            opacity:0;
+            transform:translateY(30px);
+            transition:opacity 0.6s ease-out, transform 0.6s ease-out;
         }
 
-        .page-header h1 {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(22px, 4vw, 36px);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-bright);
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+        .sec.visible {
+            opacity:1;
+            transform:translateY(0);
         }
 
-        .page-header p {
-            font-size: 13px; color: var(--text2); margin-top: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+        .sec-label {
+            font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.08em; color:var(--text3); margin-bottom:14px;
+            display:flex; align-items:center; gap:10px;
         }
 
-        /* ── Load Button (HUD style) ── */
-        .hud-action {
-            display: flex; align-items: center; justify-content: center;
-            gap: 14px; margin-bottom: 36px;
-            animation: fadeSlide 0.5s ease-out 0.1s both;
+        .sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+        /* ── Stat Cards ── */
+        .sg { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+
+        .sc {
+            background:var(--bg-card); border:1px solid var(--border);
+            border-radius:var(--r); padding:22px 20px;
+            position:relative; overflow:hidden;
+            transition:all .3s ease;
+            opacity:0; transform:translateY(16px);
         }
 
-        .hud-btn {
-            padding: 12px 32px;
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-family: 'Orbitron', monospace;
-            font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            position: relative;
-            clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+        .sc.in {
+            opacity:1; transform:translateY(0);
+            transition:opacity .4s ease-out, transform .4s ease-out;
         }
 
-        .hud-btn:hover {
-            background: var(--neon-blue-dim);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
-            text-shadow: 0 0 8px var(--neon-blue);
+        .sc:hover { border-color:var(--border-h); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.3); }
+
+        .sc .lb {
+            font-size:10px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.06em; color:var(--text3); margin-bottom:10px;
+            display:flex; align-items:center; gap:6px;
         }
 
-        .hud-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .sc .lb .d { width:8px; height:8px; border-radius:50%; }
 
-        .status-text {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; color: var(--text2);
+        .sc .vl {
+            font-size:28px; font-weight:900; letter-spacing:-.02em;
+            font-variant-numeric:tabular-nums; line-height:1.1;
         }
 
-        .status-text.ok { color: var(--neon-green); }
-        .status-text.err { color: var(--neon-red); }
-        .status-text.load { color: var(--neon-blue); }
+        .sc .sub { font-size:11px; color:var(--text3); margin-top:6px; font-weight:500; }
 
-        /* ── Section Headers ── */
-        .sec-hud {
-            display: none; margin-bottom: 32px;
-        }
+        /* Mini progress bars */
+        .mb { margin-top:14px; width:100%; height:4px; background:rgba(255,255,255,.04); border-radius:100px; overflow:hidden; }
 
-        .sec-hud.show {
-            display: block;
-            animation: fadeSlide 0.5s ease-out;
-        }
+        .mbf { height:100%; border-radius:100px; width:0%; transition:width 1.4s cubic-bezier(.22,1,.36,1); }
 
-        .sec-bar {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 16px;
-            font-family: 'Orbitron', monospace;
-            font-size: 10px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            color: var(--neon-blue);
-        }
+        /* Color utilities */
+        .c-a{color:var(--accent2)} .c-g{color:var(--green)} .c-r{color:var(--red)}
+        .c-o{color:var(--orange)} .c-c{color:var(--cyan)} .c-p{color:var(--purple)}
 
-        .sec-bar .line {
-            flex: 1; height: 1px;
-            background: linear-gradient(90deg, var(--border-panel), transparent);
-        }
+        .b-a{background:var(--accent2)} .b-g{background:var(--green)} .b-r{background:var(--red)}
+        .b-o{background:var(--orange)} .b-c{background:var(--cyan)} .b-p{background:var(--purple)}
 
-        .sec-bar .tag {
-            padding: 3px 8px;
-            border: 1px solid var(--border-panel);
-            font-size: 8px; color: var(--text3);
-        }
-
-        /* ── HUD Stat Panels ── */
-        .hud-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-
-        .hud-stat {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-panel);
-            padding: 20px 18px;
-            position: relative;
-            opacity: 0; transform: translateY(12px);
-            transition: all 0.4s ease-out;
-        }
-
-        .hud-stat.in { opacity: 1; transform: translateY(0); }
-
-        .hud-stat:hover {
-            border-color: var(--border-glow);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.06);
-        }
-
-        /* Corner cuts */
-        .hud-stat::before {
-            content: '';
-            position: absolute; top: 0; right: 0;
-            border-style: solid;
-            border-width: 0 12px 12px 0;
-            border-color: transparent var(--bg) transparent transparent;
-        }
-
-        .hud-stat .s-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text3);
-            margin-bottom: 10px;
-        }
-
-        .hud-stat .s-val {
-            font-family: 'Orbitron', monospace;
-            font-size: 26px; font-weight: 900;
-            letter-spacing: 0.02em;
-            line-height: 1;
-        }
-
-        .hud-stat .s-sub {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; color: var(--text3); margin-top: 6px;
-        }
-
-        /* Stat bar */
-        .s-bar {
-            margin-top: 14px; width: 100%; height: 3px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .s-bar-fill {
-            height: 100%; width: 0%;
-            transition: width 1.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .nc { color: var(--neon-blue); }
-        .ng { color: var(--neon-green); }
-        .nr { color: var(--neon-red); }
-        .no { color: var(--neon-orange); }
-        .np { color: var(--neon-purple); }
-
-        .bc { background: var(--neon-blue); box-shadow: 0 0 6px rgba(0, 212, 255, 0.4); }
-        .bg_ { background: var(--neon-green); box-shadow: 0 0 6px rgba(0, 255, 136, 0.4); }
-        .br { background: var(--neon-red); box-shadow: 0 0 6px rgba(255, 51, 102, 0.4); }
-        .bo { background: var(--neon-orange); box-shadow: 0 0 6px rgba(255, 149, 0, 0.4); }
-        .bp { background: var(--neon-purple); box-shadow: 0 0 6px rgba(180, 74, 255, 0.4); }
-
-        /* ── Chart Panels ── */
+        /* ── Chart Cards ── */
         .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
         }
 
-        .chart-panel {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-panel);
-            padding: 24px;
-            position: relative;
+        .chart-card {
+            background:var(--bg-card);
+            border:1px solid var(--border);
+            border-radius:var(--rl);
+            padding:24px;
+            transition:border-color .3s ease;
         }
 
-        .chart-panel.wide { grid-column: 1 / -1; }
+        .chart-card:hover { border-color:var(--border-h); }
+        .chart-card.wide { grid-column:1 / -1; }
 
-        .chart-panel:hover {
-            border-color: var(--border-glow);
+        .chart-card .ch-title {
+            font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px;
         }
 
-        /* Corner brackets on chart panels */
-        .chart-panel::before, .chart-panel::after {
-            content: '';
-            position: absolute;
-            width: 10px; height: 10px;
-            border-color: var(--neon-blue);
-            border-style: solid;
-            opacity: 0.4;
+        .chart-card .ch-sub {
+            font-size:11px; color:var(--text3); margin-bottom:16px;
         }
 
-        .chart-panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
-        .chart-panel::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
-
-        .chart-panel .ch-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.06em;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-
-        .chart-panel .ch-sub {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; color: var(--text3);
-            margin-bottom: 18px;
-        }
-
-        .ch-wrap {
-            position: relative; width: 100%;
-        }
-
-        .ch-wrap canvas { width: 100% !important; }
+        .ch-wrap { position:relative; width:100%; }
+        .ch-wrap canvas { width:100% !important; }
 
         /* Donut center */
-        .donut-box { position: relative; max-width: 200px; margin: 0 auto; }
+        .donut-box { position:relative; max-width:200px; margin:0 auto; }
 
-        .donut-label {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+        .donut-center {
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            text-align:center;
         }
 
-        .donut-label .dl-big {
-            font-family: 'Orbitron', monospace;
-            font-size: 24px; font-weight: 900;
-            color: var(--neon-green);
-            text-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        .donut-center .big {
+            font-size:26px; font-weight:900; color:var(--green);
         }
 
-        .donut-label .dl-sm {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 8px; color: var(--text3);
-            text-transform: uppercase; letter-spacing: 0.08em;
+        .donut-center .small {
+            font-size:10px; color:var(--text3);
+            text-transform:uppercase; letter-spacing:.05em; font-weight:600;
         }
 
-        /* ── Performance Gauge ── */
-        .gauge-section {
-            margin-top: 16px;
-        }
-
+        /* ── Gauge Section ── */
         .gauge-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:14px;
         }
 
         .gauge-card {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-panel);
-            padding: 20px;
-            text-align: center;
+            background:var(--bg-card);
+            border:1px solid var(--border);
+            border-radius:var(--r);
+            padding:24px 20px;
+            text-align:center;
+            transition:border-color .3s ease;
         }
+
+        .gauge-card:hover { border-color:var(--border-h); }
 
         .gauge-ring {
-            position: relative;
-            width: 100px; height: 100px;
-            margin: 0 auto 12px;
+            position:relative;
+            width:110px; height:110px;
+            margin:0 auto 14px;
         }
 
-        .gauge-ring canvas { width: 100% !important; height: 100% !important; }
+        .gauge-ring canvas { width:100% !important; height:100% !important; }
 
         .gauge-ring .g-val {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Orbitron', monospace;
-            font-size: 18px; font-weight: 900;
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            font-size:22px; font-weight:900;
         }
 
         .gauge-name {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px; color: var(--text3);
-            text-transform: uppercase; letter-spacing: 0.06em;
+            font-size:11px; color:var(--text3);
+            text-transform:uppercase; letter-spacing:.05em; font-weight:600;
+        }
+
+        .gauge-desc {
+            font-size:10px; color:var(--text3); margin-top:4px; opacity:.7;
         }
 
         /* ── Footer ── */
-        .hud-footer {
-            text-align: center; margin-top: 48px; padding-top: 20px;
-            border-top: 1px solid var(--border-panel);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px; color: var(--text3);
-            letter-spacing: 0.04em;
+        .footer {
+            text-align:center; margin-top:48px; padding-top:20px;
+            border-top:1px solid var(--border);
+            font-size:12px; color:var(--text3);
         }
 
-        .hud-footer a { color: var(--neon-blue); text-decoration: none; }
-        .hud-footer a:hover { text-shadow: 0 0 6px rgba(0, 212, 255, 0.4); }
+        .footer a { color:var(--accent2); text-decoration:none; font-weight:600; }
+        .footer a:hover { text-decoration:underline; }
 
         /* ── Animations ── */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeSlide { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes panelIn { from { opacity: 0; transform: scaleX(0.95); } to { opacity: 1; transform: scaleX(1); } }
-        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 4px currentColor; } 50% { box-shadow: 0 0 16px currentColor; } }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes fadeSlide { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 
-        /* ── Responsive ── */
-        @media (max-width: 700px) {
-            .app { padding: 16px 12px 60px; }
-            .hud-nav { flex-direction: column; gap: 10px; }
-            .chart-grid { grid-template-columns: 1fr; }
-            .gauge-grid { grid-template-columns: 1fr; }
-            .hud-stats { grid-template-columns: 1fr 1fr; }
-            .hud-stat .s-val { font-size: 20px; }
+        /* ═════════════════════════════
+           RESPONSIVE — MOBILE
+        ═════════════════════════════ */
+        @media (max-width:900px) {
+            .chart-grid { grid-template-columns:1fr; }
+            .chart-card.wide { grid-column:auto; }
+        }
+
+        @media (max-width:700px) {
+            .app { padding:20px 14px 60px; }
+
+            .nav { flex-direction:column; gap:12px; }
+            .nav-brand { font-size:15px; }
+            .nav-links { width:100%; justify-content:center; }
+            .nav-link { padding:7px 14px; font-size:12px; }
+
+            .hero h1 { font-size:24px; }
+            .hero p { font-size:13px; }
+            .hero-chip { font-size:10px; padding:4px 12px; }
+
+            .action-bar { flex-direction:column; text-align:center; padding:18px 20px; }
+            .btn { width:100%; }
+
+            .sg { grid-template-columns:1fr 1fr; gap:10px; }
+            .sc { padding:16px 14px; }
+            .sc .vl { font-size:22px; }
+            .sc .lb { font-size:9px; }
+
+            .chart-grid { grid-template-columns:1fr; gap:12px; }
+            .chart-card { padding:18px; }
+            .chart-card .ch-title { font-size:13px; }
+
+            .gauge-grid { grid-template-columns:1fr 1fr 1fr; gap:10px; }
+            .gauge-ring { width:80px; height:80px; }
+            .gauge-ring .g-val { font-size:16px; }
+            .gauge-name { font-size:9px; }
+        }
+
+        @media (max-width:400px) {
+            .sg { grid-template-columns:1fr; }
+            .gauge-grid { grid-template-columns:1fr; }
+            .gauge-ring { width:100px; height:100px; }
+            .gauge-ring .g-val { font-size:20px; }
+            .nav-link { padding:6px 10px; font-size:11px; }
         }
     </style>
 </head>
 
 <body>
 
-<div class="bg-scene"></div>
-<div class="bg-hex"></div>
+<div class="bg-fx"></div>
+<div class="bg-grid"></div>
 
 <div class="app">
 
-    <!-- HUD Navigation -->
-    <nav class="hud-nav">
-        <div class="hud-brand">
-            <div class="icon">N</div>
+    <!-- Nav (same as dashboard) -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="logo">N</div>
             NeuroNavi
         </div>
-        <div class="hud-links">
-            <a href="index.html" class="hud-link">// Dashboard</a>
-            <a href="visualize.html" class="hud-link active">// Visualize</a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">📊 Dashboard</a>
+            <a href="visualize.html" class="nav-link active">📈 Visualize</a>
         </div>
     </nav>
 
-    <!-- Header -->
-    <header class="page-header">
-        <div class="hud-tag">
-            <span class="pulse-ring"></span>
-            System Online — Data Feed Active
-        </div>
-        <h1>Data Visualization</h1>
-        <p>[ analytics.render() — navi_island.game_stats ]</p>
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-chip"><span class="dot"></span> Data Visualization</div>
+        <h1>Analytics & Charts</h1>
+        <p>Scroll down to explore your gameplay data visualizations</p>
     </header>
 
     <!-- Load -->
-    <div class="hud-action">
-        <button class="hud-btn" id="loadBtn" onclick="loadData()">▶ Initialize Data</button>
-        <span class="status-text" id="statusText">awaiting_command...</span>
+    <div class="action-bar">
+        <p><strong>Load game sessions</strong> — charts and graphs will animate as you scroll down.</p>
+        <button class="btn" id="loadBtn" onclick="loadData()">🔄 Load Data</button>
     </div>
+    <div class="msg" id="msg"></div>
 
-    <!-- Performance Metrics -->
-    <section class="sec-hud" id="secMetrics">
-        <div class="sec-bar">
-            <span>◆</span> Performance Metrics
-            <span class="line"></span>
-            <span class="tag">REAL-TIME</span>
-        </div>
-        <div class="hud-stats" id="metricsGrid">
-            <div class="hud-stat"><div class="s-label">▸ Sessions</div><div class="s-val nc" id="mSess">0</div><div class="s-sub">total recorded</div><div class="s-bar"><div class="s-bar-fill bc" id="mSessBar"></div></div></div>
-            <div class="hud-stat"><div class="s-label">▸ Avg Time</div><div class="s-val no" id="mAvg">0s</div><div class="s-sub">per session</div><div class="s-bar"><div class="s-bar-fill bo" id="mAvgBar"></div></div></div>
-            <div class="hud-stat"><div class="s-label">▸ Best Time</div><div class="s-val ng" id="mBest">0s</div><div class="s-sub">record speed</div><div class="s-bar"><div class="s-bar-fill bg_" id="mBestBar"></div></div></div>
-            <div class="hud-stat"><div class="s-label">▸ Worst Time</div><div class="s-val nr" id="mWorst">0s</div><div class="s-sub">slowest run</div><div class="s-bar"><div class="s-bar-fill br" id="mWorstBar"></div></div></div>
-            <div class="hud-stat"><div class="s-label">▸ Total Fails</div><div class="s-val nr" id="mFails">0</div><div class="s-sub">accumulated</div><div class="s-bar"><div class="s-bar-fill br" id="mFailsBar"></div></div></div>
-            <div class="hud-stat"><div class="s-label">▸ Completions</div><div class="s-val ng" id="mComp">0</div><div class="s-sub">total achieved</div><div class="s-bar"><div class="s-bar-fill bg_" id="mCompBar"></div></div></div>
+    <!-- ═══ Performance Metrics ═══ -->
+    <section class="sec" id="secMetrics" data-anim="metrics">
+        <div class="sec-label">📊 Key Metrics</div>
+        <div class="sg" id="metricsGrid">
+            <div class="sc"><div class="lb"><span class="d b-a"></span>Sessions</div><div class="vl c-a" id="mSess">0</div><div class="sub">total played</div><div class="mb"><div class="mbf b-a" id="mSessBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-o"></span>Avg Time</div><div class="vl c-o" id="mAvg">0s</div><div class="sub">per session</div><div class="mb"><div class="mbf b-o" id="mAvgBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-g"></span>Best Time</div><div class="vl c-g" id="mBest">0s</div><div class="sub">fastest run</div><div class="mb"><div class="mbf b-g" id="mBestBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-r"></span>Worst Time</div><div class="vl c-r" id="mWorst">0s</div><div class="sub">slowest run</div><div class="mb"><div class="mbf b-r" id="mWorstBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-r"></span>Total Fails</div><div class="vl c-r" id="mFails">0</div><div class="sub">accumulated</div><div class="mb"><div class="mbf b-r" id="mFailsBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-g"></span>Completions</div><div class="vl c-g" id="mComp">0</div><div class="sub">total achieved</div><div class="mb"><div class="mbf b-g" id="mCompBar"></div></div></div>
         </div>
     </section>
 
-    <!-- Charts -->
-    <section class="sec-hud" id="secCharts">
-        <div class="sec-bar">
-            <span>◆</span> Data Analysis
-            <span class="line"></span>
-            <span class="tag">CHART.JS</span>
+    <!-- ═══ Charts ═══ -->
+    <section class="sec" id="secTimeline" data-anim="timeline">
+        <div class="sec-label">⏱️ Session Timeline</div>
+        <div class="chart-card wide">
+            <div class="ch-title">Time per Session</div>
+            <div class="ch-sub">Track how your completion time changes across sessions</div>
+            <div class="ch-wrap" style="height:280px"><canvas id="cTime"></canvas></div>
         </div>
+    </section>
 
+    <section class="sec" id="secFails" data-anim="fails">
+        <div class="sec-label">💥 Fail Analysis</div>
         <div class="chart-grid">
-            <!-- Timeline -->
-            <div class="chart-panel wide">
-                <div class="ch-title">◈ Session Timeline</div>
-                <div class="ch-sub">time_per_session // trend analysis</div>
-                <div class="ch-wrap" style="height:280px"><canvas id="cTime"></canvas></div>
-            </div>
-
-            <!-- Fails Bar -->
-            <div class="chart-panel">
-                <div class="ch-title">◈ Fail Analysis</div>
-                <div class="ch-sub">fails_per_session // bar chart</div>
+            <div class="chart-card">
+                <div class="ch-title">Fails per Session</div>
+                <div class="ch-sub">Color-coded by severity — green = 0, orange = 1-3, red = 4+</div>
                 <div class="ch-wrap" style="height:260px"><canvas id="cFails"></canvas></div>
             </div>
+            <div class="chart-card">
+                <div class="ch-title">Fail Distribution</div>
+                <div class="ch-sub">How often each fail count occurred</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cFailDist"></canvas></div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Completion Donut -->
-            <div class="chart-panel">
-                <div class="ch-title">◈ Completion Rate</div>
-                <div class="ch-sub">completed_vs_incomplete // ratio</div>
+    <section class="sec" id="secCompletion" data-anim="completion">
+        <div class="sec-label">✅ Completion & Time</div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="ch-title">Completion Rate</div>
+                <div class="ch-sub">Sessions with ≥1 completion vs incomplete</div>
                 <div class="ch-wrap">
                     <div class="donut-box">
                         <canvas id="cDonut"></canvas>
-                        <div class="donut-label">
-                            <div class="dl-big" id="donutPct">—</div>
-                            <div class="dl-sm">completed</div>
+                        <div class="donut-center">
+                            <div class="big" id="donutPct">—</div>
+                            <div class="small">completed</div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Fail Distribution -->
-            <div class="chart-panel">
-                <div class="ch-title">◈ Fail Distribution</div>
-                <div class="ch-sub">frequency_map // horizontal</div>
-                <div class="ch-wrap" style="height:260px"><canvas id="cFailDist"></canvas></div>
-            </div>
-
-            <!-- Time Histogram -->
-            <div class="chart-panel">
-                <div class="ch-title">◈ Time Distribution</div>
-                <div class="ch-sub">session_time_buckets // histogram</div>
+            <div class="chart-card">
+                <div class="ch-title">Time Distribution</div>
+                <div class="ch-sub">Session times grouped into ranges</div>
                 <div class="ch-wrap" style="height:260px"><canvas id="cTimeDist"></canvas></div>
-            </div>
-
-            <!-- Cumulative Performance -->
-            <div class="chart-panel wide">
-                <div class="ch-title">◈ Performance Trend</div>
-                <div class="ch-sub">cumulative_avg_time // moving performance</div>
-                <div class="ch-wrap" style="height:240px"><canvas id="cPerf"></canvas></div>
             </div>
         </div>
     </section>
 
-    <!-- Performance Gauges -->
-    <section class="sec-hud" id="secGauges">
-        <div class="sec-bar">
-            <span>◆</span> Performance Gauges
-            <span class="line"></span>
-            <span class="tag">RATING</span>
+    <section class="sec" id="secTrend" data-anim="trend">
+        <div class="sec-label">📈 Performance Trend</div>
+        <div class="chart-card wide">
+            <div class="ch-title">Cumulative Average Time</div>
+            <div class="ch-sub">Shows how your average performance evolves over all sessions</div>
+            <div class="ch-wrap" style="height:240px"><canvas id="cPerf"></canvas></div>
         </div>
+    </section>
+
+    <!-- ═══ Gauges ═══ -->
+    <section class="sec" id="secGauges" data-anim="gauges">
+        <div class="sec-label">🎯 Performance Score</div>
         <div class="gauge-grid">
             <div class="gauge-card">
                 <div class="gauge-ring">
                     <canvas id="gSpeed"></canvas>
-                    <div class="g-val ng" id="gSpeedVal">—</div>
+                    <div class="g-val c-g" id="gSpeedVal">—</div>
                 </div>
                 <div class="gauge-name">Speed Score</div>
+                <div class="gauge-desc">Based on avg time</div>
             </div>
             <div class="gauge-card">
                 <div class="gauge-ring">
                     <canvas id="gAccuracy"></canvas>
-                    <div class="g-val nc" id="gAccVal">—</div>
+                    <div class="g-val c-c" id="gAccVal">—</div>
                 </div>
                 <div class="gauge-name">Accuracy Score</div>
+                <div class="gauge-desc">Based on avg fails</div>
             </div>
             <div class="gauge-card">
                 <div class="gauge-ring">
                     <canvas id="gOverall"></canvas>
-                    <div class="g-val np" id="gOverallVal">—</div>
+                    <div class="g-val c-p" id="gOverallVal">—</div>
                 </div>
                 <div class="gauge-name">Overall Rating</div>
+                <div class="gauge-desc">Combined score</div>
             </div>
         </div>
     </section>
 
-    <footer class="hud-footer">
-        [ neuronavi.analytics ] — unity → supabase → web — <a href="#">navi_island</a> — v1.0
+    <footer class="footer">
+        NeuroNavi Analytics &mdash; Unity → Supabase → Web &mdash; <a href="#">Navi Island</a>
     </footer>
 </div>
 
@@ -665,34 +521,33 @@ const SUPA_URL = "https://armtgguvlpmkkjniqvli.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
 
 let charts = {};
-let cachedData = null;  // Store fetched data for scroll-triggered rendering
+let cachedData = null;
+const animated = {};
 
-// Track which sections have already animated (so they don't re-trigger)
-const animated = { metrics: false, charts: false, gauges: false };
-
-// Chart.js theme
-Chart.defaults.color = "#6e7681";
-Chart.defaults.borderColor = "rgba(0, 212, 255, 0.04)";
-Chart.defaults.font.family = "'JetBrains Mono', 'Inter', monospace";
-Chart.defaults.font.size = 10;
+// Chart.js theme — match dashboard colors
+Chart.defaults.color = "#8b949e";
+Chart.defaults.borderColor = "rgba(255,255,255,0.04)";
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
 Chart.defaults.plugins.legend.display = false;
-Chart.defaults.animation.duration = 1600;
-Chart.defaults.animation.easing = "easeOutQuart";
 Chart.defaults.responsive = true;
 Chart.defaults.maintainAspectRatio = false;
 
 const loadBtn = document.getElementById("loadBtn");
-const statusEl = document.getElementById("statusText");
+const msgEl = document.getElementById("msg");
 
+// Auto-load on page open
 window.addEventListener("DOMContentLoaded", loadData);
 
 // ═══════════════════════════════
 // HELPERS
 // ═══════════════════════════════
-function status(msg, cls) {
-    statusEl.className = `status-text ${cls}`;
-    statusEl.textContent = msg;
+function showMsg(t, c) {
+    msgEl.className = `msg show ${c}`;
+    msgEl.innerHTML = c === "loading" ? `<span class="spinner"></span> ${t}` : t;
 }
+
+function hideMsg() { msgEl.className = "msg"; }
 
 function animNum(el, end, dur = 1200, dec = 0, suf = "") {
     const t0 = performance.now();
@@ -708,81 +563,68 @@ function animBar(el, pct, delay = 0) {
     setTimeout(() => { el.style.width = Math.min(pct, 100) + "%"; }, delay);
 }
 
-function stagger(id) {
-    document.querySelectorAll(`#${id} .hud-stat`).forEach((c, i) => {
-        setTimeout(() => c.classList.add("in"), i * 80);
+function staggerCards(gridId) {
+    document.querySelectorAll(`#${gridId} .sc`).forEach((c, i) => {
+        setTimeout(() => c.classList.add("in"), i * 100);
     });
 }
 
-// Tooltip theme
-const tooltipOpts = {
-    backgroundColor: "rgba(8, 12, 20, 0.95)",
-    borderColor: "rgba(0, 212, 255, 0.2)",
+const ttOpts = {
+    backgroundColor: "rgba(13,17,23,0.95)",
+    borderColor: "rgba(255,255,255,0.1)",
     borderWidth: 1,
-    titleFont: { family: "'Orbitron', monospace", size: 10, weight: 700 },
-    bodyFont: { family: "'JetBrains Mono', monospace", size: 10 },
-    titleColor: "#00d4ff",
+    titleFont: { weight: 700, size: 11 },
+    bodyFont: { size: 11 },
     padding: 10,
-    cornerRadius: 2,
+    cornerRadius: 8,
 };
 
-// ═══════════════════════════════════════════
-// INTERSECTION OBSERVER — Scroll animations
-// ═══════════════════════════════════════════
-const scrollObserver = new IntersectionObserver((entries) => {
+// ═══════════════════════════════════════
+// INTERSECTION OBSERVER — Scroll Trigger
+// ═══════════════════════════════════════
+const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (!entry.isIntersecting || !cachedData) return;
 
-        const id = entry.target.id;
+        const key = entry.target.dataset.anim;
+        if (!key || animated[key]) return;
 
-        if (id === "secMetrics" && !animated.metrics) {
-            animated.metrics = true;
-            triggerMetrics(cachedData);
-        }
+        animated[key] = true;
 
-        if (id === "secCharts" && !animated.charts) {
-            animated.charts = true;
-            triggerCharts(cachedData);
-        }
+        // Make section visible (CSS transition handles the fade)
+        entry.target.classList.add("visible");
 
-        if (id === "secGauges" && !animated.gauges) {
-            animated.gauges = true;
-            triggerGauges(cachedData);
+        // Trigger the matching animation
+        switch (key) {
+            case "metrics": animateMetrics(cachedData); break;
+            case "timeline": buildTimeline(cachedData); break;
+            case "fails": buildFails(cachedData); break;
+            case "completion": buildCompletion(cachedData); break;
+            case "trend": buildTrend(cachedData); break;
+            case "gauges": buildGauges(cachedData); break;
         }
     });
 }, {
-    // Trigger when 15% of the section is visible
-    threshold: 0.15,
-    rootMargin: "0px 0px -50px 0px"
-});
-
-// Observe all sections
-["secMetrics", "secCharts", "secGauges"].forEach(id => {
-    scrollObserver.observe(document.getElementById(id));
+    threshold: 0.1,
+    rootMargin: "0px 0px -40px 0px"
 });
 
 // ═══════════════════════════════
-// LOAD DATA (silently, no animations)
+// LOAD DATA
 // ═══════════════════════════════
 async function loadData() {
-    status("loading_data...", "load");
+    showMsg("Fetching sessions…", "loading");
     loadBtn.disabled = true;
 
-    // Reset everything
-    animated.metrics = false;
-    animated.charts = false;
-    animated.gauges = false;
+    // Reset
     cachedData = null;
-
-    document.querySelectorAll(".hud-stat").forEach(c => c.classList.remove("in"));
-    document.querySelectorAll(".s-bar-fill").forEach(b => b.style.width = "0%");
+    Object.keys(animated).forEach(k => animated[k] = false);
     Object.values(charts).forEach(c => c?.destroy());
     charts = {};
 
-    // Hide sections but keep them in DOM for observer
-    ["secMetrics", "secCharts", "secGauges"].forEach(id => {
-        document.getElementById(id).classList.remove("show");
-    });
+    document.querySelectorAll(".sc").forEach(c => c.classList.remove("in"));
+    document.querySelectorAll(".mbf").forEach(b => b.style.width = "0%");
+    document.querySelectorAll(".sec").forEach(s => s.classList.remove("visible"));
 
     try {
         const res = await fetch(`${SUPA_URL}/rest/v1/game_stats?order=created_at.desc`, {
@@ -793,44 +635,36 @@ async function loadData() {
         const data = await res.json();
 
         if (!data || data.length === 0) {
-            status("no_data_found — play your game first", "err");
+            showMsg("🔍 No sessions yet — play your game in Unity!", "info");
             loadBtn.disabled = false;
             return;
         }
 
-        status(`data_loaded: ${data.length} sessions — scroll down ▼`, "ok");
+        showMsg(`✅ ${data.length} session${data.length > 1 ? "s" : ""} loaded — scroll down to explore ▼`, "success");
+        setTimeout(hideMsg, 4000);
 
-        // Store data and make sections visible (but no animations yet)
         cachedData = data;
 
-        // Show section containers (display:block) so they're in the page flow
-        ["secMetrics", "secCharts", "secGauges"].forEach(id => {
-            document.getElementById(id).classList.add("show");
-        });
-
-        // Check if any sections are already in viewport (e.g. first section)
-        // by re-triggering the observer
-        ["secMetrics", "secCharts", "secGauges"].forEach(id => {
-            const el = document.getElementById(id);
-            scrollObserver.unobserve(el);
-            scrollObserver.observe(el);
+        // Start observing each section
+        document.querySelectorAll(".sec[data-anim]").forEach(sec => {
+            observer.unobserve(sec);
+            observer.observe(sec);
         });
 
     } catch (e) {
-        status(`error: ${e.message}`, "err");
+        showMsg(`❌ ${e.message}`, "error");
         console.error(e);
     } finally {
         loadBtn.disabled = false;
     }
 }
 
-// ═══════════════════════════════════════════
-// SCROLL-TRIGGERED RENDER FUNCTIONS
-// These only fire when the section scrolls in
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
+// SECTION ANIMATIONS (scroll-triggered)
+// ═══════════════════════════════════════
 
-// ── METRICS (triggered on scroll) ──
-function triggerMetrics(data) {
+// ── Metrics Cards ──
+function animateMetrics(data) {
     const n = data.length;
     const totF = data.reduce((s, d) => s + (d.fails || 0), 0);
     const avgT = data.reduce((s, d) => s + (d.time || 0), 0) / n;
@@ -838,7 +672,6 @@ function triggerMetrics(data) {
     const bestT = Math.min(...data.map(d => d.time || Infinity));
     const worstT = Math.max(...data.map(d => d.time || 0));
 
-    // Animated number counters
     animNum(document.getElementById("mSess"), n, 800, 0);
     animNum(document.getElementById("mAvg"), avgT, 1200, 1, "s");
     animNum(document.getElementById("mBest"), bestT, 1000, 2, "s");
@@ -846,7 +679,6 @@ function triggerMetrics(data) {
     animNum(document.getElementById("mFails"), totF, 1000, 0);
     animNum(document.getElementById("mComp"), totC, 1000, 0);
 
-    // Animated progress bars
     animBar(document.getElementById("mSessBar"), (n / 50) * 100, 200);
     animBar(document.getElementById("mAvgBar"), (avgT / 120) * 100, 300);
     animBar(document.getElementById("mBestBar"), (bestT / worstT) * 100, 400);
@@ -854,21 +686,15 @@ function triggerMetrics(data) {
     animBar(document.getElementById("mFailsBar"), (totF / Math.max(n * 5, 10)) * 100, 600);
     animBar(document.getElementById("mCompBar"), (totC / Math.max(n, 10)) * 100, 700);
 
-    // Staggered card entrance
-    stagger("metricsGrid");
+    staggerCards("metricsGrid");
 }
 
-// ── CHARTS (triggered on scroll) ──
-function triggerCharts(data) {
-    Object.values(charts).forEach(c => c?.destroy());
-    charts = {};
-
+// ── Timeline Line Chart ──
+function buildTimeline(data) {
     const chrono = [...data].reverse();
-    const labels = chrono.map((_, i) => `S${i + 1}`);
-
-    // ── Time Line ──
+    const labels = chrono.map((_, i) => `#${i + 1}`);
     const timeData = chrono.map(d => d.time || 0);
-    const avgLine = timeData.reduce((a, b) => a + b, 0) / timeData.length;
+    const avg = timeData.reduce((a, b) => a + b, 0) / timeData.length;
 
     charts.time = new Chart(document.getElementById("cTime"), {
         type: "line",
@@ -878,42 +704,40 @@ function triggerCharts(data) {
                 {
                     label: "Time",
                     data: timeData,
-                    borderColor: "#00d4ff",
-                    backgroundColor: "rgba(0, 212, 255, 0.06)",
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.35,
-                    pointRadius: 4,
-                    pointBackgroundColor: "#00d4ff",
-                    pointBorderColor: "#030508",
-                    pointBorderWidth: 2,
+                    borderColor: "#58a6ff",
+                    backgroundColor: "rgba(88,166,255,0.08)",
+                    borderWidth: 2.5, fill: true, tension: 0.4,
+                    pointRadius: 4, pointBackgroundColor: "#58a6ff",
+                    pointBorderColor: "#0d1117", pointBorderWidth: 2,
                     pointHoverRadius: 7,
-                    pointHoverBackgroundColor: "#fff",
                 },
                 {
                     label: "Average",
-                    data: timeData.map(() => avgLine),
-                    borderColor: "rgba(255, 149, 0, 0.5)",
-                    borderWidth: 1.5,
-                    borderDash: [5, 3],
-                    pointRadius: 0,
-                    fill: false,
+                    data: timeData.map(() => avg),
+                    borderColor: "rgba(210,153,34,0.5)",
+                    borderWidth: 1.5, borderDash: [6, 4],
+                    pointRadius: 0, fill: false,
                 }
             ]
         },
         options: {
+            animation: { duration: 1400, easing: "easeOutQuart" },
             plugins: {
-                legend: { display: true, position: "top", labels: { boxWidth: 10, padding: 14, font: { size: 9, weight: 700, family: "'Orbitron', monospace" }, color: "#6e7681" } },
-                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s` } }
+                legend: { display: true, position: "top", labels: { boxWidth: 10, padding: 14, font: { size: 10, weight: 600 } } },
+                tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s` } }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: "rgba(0,212,255,0.03)" }, ticks: { callback: v => v + "s", font: { size: 9 } } },
-                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.03)" }, ticks: { callback: v => v + "s" } },
+                x: { grid: { display: false } }
             }
         }
     });
+}
 
-    // ── Fails Bar ──
+// ── Fails Charts ──
+function buildFails(data) {
+    const chrono = [...data].reverse();
+    const labels = chrono.map((_, i) => `#${i + 1}`);
     const failsData = chrono.map(d => d.fails || 0);
 
     charts.fails = new Chart(document.getElementById("cFails"), {
@@ -922,22 +746,51 @@ function triggerCharts(data) {
             labels,
             datasets: [{
                 data: failsData,
-                backgroundColor: failsData.map(f => f === 0 ? "rgba(0,255,136,0.5)" : f <= 3 ? "rgba(255,149,0,0.5)" : "rgba(255,51,102,0.5)"),
-                borderColor: failsData.map(f => f === 0 ? "#00ff88" : f <= 3 ? "#ff9500" : "#ff3366"),
-                borderWidth: 1,
-                borderRadius: 3,
+                backgroundColor: failsData.map(f => f === 0 ? "rgba(63,185,80,0.6)" : f <= 3 ? "rgba(210,153,34,0.6)" : "rgba(248,81,73,0.6)"),
+                borderColor: failsData.map(f => f === 0 ? "#3fb950" : f <= 3 ? "#d29922" : "#f85149"),
+                borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
             }]
         },
         options: {
-            plugins: { tooltip: tooltipOpts },
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: ttOpts },
             scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
-                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(255,255,255,0.03)" } },
+                x: { grid: { display: false } }
             }
         }
     });
 
-    // ── Completion Donut ──
+    // Fail distribution
+    const fMap = {};
+    data.forEach(d => { const f = d.fails || 0; fMap[f] = (fMap[f] || 0) + 1; });
+    const fKeys = Object.keys(fMap).map(Number).sort((a, b) => a - b);
+
+    charts.fDist = new Chart(document.getElementById("cFailDist"), {
+        type: "bar",
+        data: {
+            labels: fKeys.map(k => k + " fails"),
+            datasets: [{
+                data: fKeys.map(k => fMap[k]),
+                backgroundColor: "rgba(188,140,255,0.5)",
+                borderColor: "#bc8cff",
+                borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.x} session${ctx.parsed.x !== 1 ? "s" : ""}` } } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(255,255,255,0.03)" } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+// ── Completion Charts ──
+function buildCompletion(data) {
     const comp = data.filter(d => (d.timesCompleted || 0) >= 1).length;
     const noComp = data.length - comp;
     const pct = ((comp / data.length) * 100).toFixed(0);
@@ -949,48 +802,21 @@ function triggerCharts(data) {
             labels: ["Completed", "Incomplete"],
             datasets: [{
                 data: [comp, noComp],
-                backgroundColor: ["rgba(0,255,136,0.6)", "rgba(255,51,102,0.2)"],
-                borderColor: ["#00ff88", "rgba(255,51,102,0.4)"],
-                borderWidth: 2,
-                hoverOffset: 6,
+                backgroundColor: ["rgba(63,185,80,0.7)", "rgba(248,81,73,0.25)"],
+                borderColor: ["#3fb950", "rgba(248,81,73,0.4)"],
+                borderWidth: 2, hoverOffset: 8,
             }]
         },
         options: {
-            cutout: "75%",
+            cutout: "72%",
+            animation: { duration: 1600, easing: "easeOutQuart" },
             plugins: {
-                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed} (${((ctx.parsed / data.length) * 100).toFixed(0)}%)` } }
+                tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed} (${((ctx.parsed / data.length) * 100).toFixed(0)}%)` } }
             }
         }
     });
 
-    // ── Fail Distribution ──
-    const fMap = {};
-    data.forEach(d => { const f = d.fails || 0; fMap[f] = (fMap[f] || 0) + 1; });
-    const fKeys = Object.keys(fMap).map(Number).sort((a, b) => a - b);
-
-    charts.fDist = new Chart(document.getElementById("cFailDist"), {
-        type: "bar",
-        data: {
-            labels: fKeys.map(k => k + " fails"),
-            datasets: [{
-                data: fKeys.map(k => fMap[k]),
-                backgroundColor: "rgba(180, 74, 255, 0.4)",
-                borderColor: "#b44aff",
-                borderWidth: 1,
-                borderRadius: 3,
-            }]
-        },
-        options: {
-            indexAxis: "y",
-            plugins: { tooltip: tooltipOpts },
-            scales: {
-                x: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
-                y: { grid: { display: false }, ticks: { font: { size: 9 } } }
-            }
-        }
-    });
-
-    // ── Time Distribution ──
+    // Time histogram
     const times = data.map(d => d.time || 0);
     const minT = Math.floor(Math.min(...times));
     const maxT = Math.ceil(Math.max(...times));
@@ -999,8 +825,7 @@ function triggerCharts(data) {
 
     for (const t of times) {
         const bs = Math.floor((t - minT) / bSize) * bSize + minT;
-        const lbl = `${bs}-${bs + bSize}s`;
-        buckets[lbl] = (buckets[lbl] || 0) + 1;
+        buckets[`${bs}-${bs + bSize}s`] = (buckets[`${bs}-${bs + bSize}s`] || 0) + 1;
     }
 
     charts.tDist = new Chart(document.getElementById("cTimeDist"), {
@@ -1009,24 +834,29 @@ function triggerCharts(data) {
             labels: Object.keys(buckets),
             datasets: [{
                 data: Object.values(buckets),
-                backgroundColor: "rgba(0, 212, 255, 0.35)",
-                borderColor: "#00d4ff",
-                borderWidth: 1,
-                borderRadius: 3,
+                backgroundColor: "rgba(88,166,255,0.45)",
+                borderColor: "#58a6ff",
+                borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
             }]
         },
         options: {
-            plugins: { tooltip: tooltipOpts },
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: ttOpts },
             scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } }, grid: { color: "rgba(0,212,255,0.03)" } },
-                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(255,255,255,0.03)" } },
+                x: { grid: { display: false } }
             }
         }
     });
+}
 
-    // ── Cumulative Avg (Performance Trend) ──
+// ── Performance Trend ──
+function buildTrend(data) {
+    const chrono = [...data].reverse();
+    const labels = chrono.map((_, i) => `#${i + 1}`);
     const cumAvg = [];
     let runSum = 0;
+
     chrono.forEach((d, i) => {
         runSum += d.time || 0;
         cumAvg.push(runSum / (i + 1));
@@ -1039,62 +869,57 @@ function triggerCharts(data) {
             datasets: [{
                 label: "Cumulative Avg",
                 data: cumAvg,
-                borderColor: "#b44aff",
-                backgroundColor: "rgba(180, 74, 255, 0.06)",
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 3,
-                pointBackgroundColor: "#b44aff",
-                pointBorderColor: "#030508",
-                pointBorderWidth: 2,
+                borderColor: "#bc8cff",
+                backgroundColor: "rgba(188,140,255,0.06)",
+                borderWidth: 2.5, fill: true, tension: 0.3,
+                pointRadius: 3, pointBackgroundColor: "#bc8cff",
+                pointBorderColor: "#0d1117", pointBorderWidth: 2,
             }]
         },
         options: {
+            animation: { duration: 1400, easing: "easeOutQuart" },
             plugins: {
-                legend: { display: true, labels: { boxWidth: 10, font: { size: 9, weight: 700, family: "'Orbitron', monospace" }, color: "#6e7681" } },
-                tooltip: { ...tooltipOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s avg` } }
+                legend: { display: true, labels: { boxWidth: 10, font: { size: 10, weight: 600 } } },
+                tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s avg` } }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: "rgba(0,212,255,0.03)" }, ticks: { callback: v => v.toFixed(0) + "s", font: { size: 9 } } },
-                x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.03)" }, ticks: { callback: v => v.toFixed(0) + "s" } },
+                x: { grid: { display: false } }
             }
         }
     });
 }
 
-// ── GAUGES (triggered on scroll) ──
-function triggerGauges(data) {
+// ── Performance Gauges ──
+function buildGauges(data) {
     const n = data.length;
     const avgT = data.reduce((s, d) => s + (d.time || 0), 0) / n;
     const avgF = data.reduce((s, d) => s + (d.fails || 0), 0) / n;
     const compRate = data.filter(d => (d.timesCompleted || 0) >= 1).length / n;
 
-    const speedScore = Math.max(0, Math.min(100, ((60 - avgT) / 50) * 100));
-    const accScore = Math.max(0, Math.min(100, ((5 - avgF) / 5) * 100));
-    const overall = speedScore * 0.35 + accScore * 0.35 + compRate * 100 * 0.30;
+    const speed = Math.max(0, Math.min(100, ((60 - avgT) / 50) * 100));
+    const accuracy = Math.max(0, Math.min(100, ((5 - avgF) / 5) * 100));
+    const overall = speed * 0.35 + accuracy * 0.35 + compRate * 100 * 0.30;
 
-    makeGauge("gSpeed", speedScore, "#00ff88", "#0a1a10");
-    makeGauge("gAccuracy", accScore, "#00d4ff", "#081218");
-    makeGauge("gOverall", overall, "#b44aff", "#120a18");
+    makeGauge("gSpeed", speed, "#3fb950", "rgba(63,185,80,0.08)");
+    makeGauge("gAccuracy", accuracy, "#58a6ff", "rgba(88,166,255,0.08)");
+    makeGauge("gOverall", overall, "#bc8cff", "rgba(188,140,255,0.08)");
 
-    animNum(document.getElementById("gSpeedVal"), speedScore, 1400, 0);
-    animNum(document.getElementById("gAccVal"), accScore, 1400, 0);
-    animNum(document.getElementById("gOverallVal"), overall, 1400, 0);
+    animNum(document.getElementById("gSpeedVal"), speed, 1500, 0);
+    animNum(document.getElementById("gAccVal"), accuracy, 1500, 0);
+    animNum(document.getElementById("gOverallVal"), overall, 1500, 0);
 }
 
-function makeGauge(canvasId, value, color, bgColor) {
-    const ctx = document.getElementById(canvasId);
-    if (charts[canvasId]) charts[canvasId].destroy();
+function makeGauge(id, value, color, bgColor) {
+    if (charts[id]) charts[id].destroy();
 
-    charts[canvasId] = new Chart(ctx, {
+    charts[id] = new Chart(document.getElementById(id), {
         type: "doughnut",
         data: {
             datasets: [{
                 data: [value, 100 - value],
                 backgroundColor: [color, bgColor],
-                borderWidth: 0,
-                hoverOffset: 0,
+                borderWidth: 0, hoverOffset: 0,
             }]
         },
         options: {

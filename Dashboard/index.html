@@ -229,10 +229,29 @@
 
         @media(max-width:700px) {
             .app{padding:20px 14px 60px}
-            .action-bar{flex-direction:column;text-align:center} .btn{width:100%}
-            .sg{grid-template-columns:1fr 1fr} .sc .vl{font-size:24px}
-            thead th,tbody td{padding:10px 12px}
             .nav{flex-direction:column;gap:12px}
+            .nav-brand{font-size:15px}
+            .nav-links{width:100%;justify-content:center}
+            .nav-link{padding:7px 14px;font-size:12px}
+            .hero h1{font-size:24px}
+            .hero p{font-size:13px}
+            .hero-chip{font-size:10px;padding:4px 12px}
+            .action-bar{flex-direction:column;text-align:center;padding:18px 20px}
+            .btn{width:100%}
+            .sg{grid-template-columns:1fr 1fr;gap:10px}
+            .sc{padding:16px 14px}
+            .sc .vl{font-size:22px}
+            .sc .lb{font-size:9px}
+            thead th,tbody td{padding:10px 12px;font-size:12px}
+            .tc{border-radius:var(--r)}
+            .tt{padding:14px 16px}
+            .tt h3{font-size:13px}
+        }
+
+        @media(max-width:400px) {
+            .sg{grid-template-columns:1fr}
+            .nav-link{padding:6px 10px;font-size:11px}
+            thead th:first-child,tbody td:first-child{display:none}
         }
     </style>
 </head>
