@@ -8,6 +8,10 @@
 //   2. Fill in your Supabase URL and API Key in the Inspector.
 //   3. Call SupabaseSender.Instance.SendStats(...) from anywhere.
 //
+// SUPPORTS:
+//   • Task 1 — SendStats(time, fails, timesCompleted)
+//   • Task 2 — SendStats(time, fails, timesCompleted, "Task 2", passCount)
+//
 // LOCATION: Assets/Scripts/SupabaseSender.cs
 // ============================================================
 
@@ -45,34 +49,52 @@ public class SupabaseSender : MonoBehaviour
     }
 
     // ==========================================================
-    // PUBLIC METHOD — Call this from your TaskManager
-    // Matches YOUR actual data: time, fails, timesCompleted
+    // PUBLIC METHOD — Original (backward-compatible for Task 1)
     // ==========================================================
     /// <summary>
-    /// Sends gameplay stats to Supabase.
+    /// Sends gameplay stats to Supabase (defaults to "Task 1").
     /// </summary>
     /// <param name="time">Time taken to complete the task (seconds)</param>
     /// <param name="fails">Number of failed attempts</param>
     /// <param name="timesCompleted">Number of times completed</param>
     public void SendStats(float time, int fails, int timesCompleted)
     {
-        StartCoroutine(PostToSupabase(time, fails, timesCompleted));
+        // Backward compatible — defaults to Task 1, pass_count 0
+        SendStats(time, fails, timesCompleted, "Task 1", 0);
+    }
+
+    // ==========================================================
+    // PUBLIC METHOD — Full version (supports any task)
+    // ==========================================================
+    /// <summary>
+    /// Sends gameplay stats to Supabase with task name and pass count.
+    /// </summary>
+    /// <param name="time">Time taken to complete the task (seconds)</param>
+    /// <param name="fails">Number of failed attempts</param>
+    /// <param name="timesCompleted">Number of times completed</param>
+    /// <param name="taskName">Task identifier, e.g. "Task 1" or "Task 2"</param>
+    /// <param name="passCount">Number of passes (used by Task 2 Memory)</param>
+    public void SendStats(float time, int fails, int timesCompleted, string taskName, int passCount = 0)
+    {
+        StartCoroutine(PostToSupabase(time, fails, timesCompleted, taskName, passCount));
     }
 
     // ==========================================================
     // COROUTINE — Handles the actual HTTP POST request
     // ==========================================================
-    private IEnumerator PostToSupabase(float time, int fails, int timesCompleted)
+    private IEnumerator PostToSupabase(float time, int fails, int timesCompleted, string taskName, int passCount)
     {
         // Build the REST API endpoint URL
         string url = $"{supabaseUrl}/rest/v1/{TABLE_NAME}";
 
-        // Create JSON payload matching YOUR TaskData format
+        // Create JSON payload
         string jsonPayload = JsonUtility.ToJson(new GameStatsPayload
         {
             time = time,
             fails = fails,
-            timesCompleted = timesCompleted
+            timesCompleted = timesCompleted,
+            task_name = taskName,
+            pass_count = passCount
         });
 
         Debug.Log($"[SupabaseSender] Sending data: {jsonPayload}");
@@ -99,7 +121,7 @@ public class SupabaseSender : MonoBehaviour
             // Check result
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log("[SupabaseSender] ✅ Data sent to Supabase successfully!");
+                Debug.Log($"[SupabaseSender] ✅ {taskName} data sent to Supabase successfully!");
             }
             else
             {
@@ -110,7 +132,7 @@ public class SupabaseSender : MonoBehaviour
     }
 
     // ==========================================================
-    // DATA CLASS — Matches YOUR TaskData fields exactly
+    // DATA CLASS — Matches the Supabase table columns
     // ==========================================================
     [System.Serializable]
     private class GameStatsPayload
@@ -118,5 +140,7 @@ public class SupabaseSender : MonoBehaviour
         public float time;
         public int fails;
         public int timesCompleted;
+        public string task_name;
+        public int pass_count;
     }
 }

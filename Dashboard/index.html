@@ -9,414 +9,1181 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
-            --bg: #06080f; --bg2: #0d1117; --bg-card: rgba(13,17,23,0.85);
-            --bg-glass: rgba(255,255,255,0.02);
-            --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
-            --accent: #6366f1; --accent2: #818cf8; --accent-g: rgba(99,102,241,0.15);
-            --green: #3fb950; --green-bg: rgba(63,185,80,0.1);
-            --red: #f85149; --red-bg: rgba(248,81,73,0.1);
-            --orange: #d29922; --orange-bg: rgba(210,153,34,0.1);
-            --cyan: #58a6ff; --cyan-bg: rgba(88,166,255,0.1);
+            --bg: #06080f;
+            --bg2: #0d1117;
+            --bg-card: rgba(13, 17, 23, 0.85);
+            --bg-glass: rgba(255, 255, 255, 0.02);
+            --text: #e6edf3;
+            --text2: #8b949e;
+            --text3: #484f58;
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent-g: rgba(99, 102, 241, 0.15);
+            --green: #3fb950;
+            --green-bg: rgba(63, 185, 80, 0.1);
+            --red: #f85149;
+            --red-bg: rgba(248, 81, 73, 0.1);
+            --orange: #d29922;
+            --orange-bg: rgba(210, 153, 34, 0.1);
+            --cyan: #58a6ff;
+            --cyan-bg: rgba(88, 166, 255, 0.1);
             --purple: #bc8cff;
-            --border: rgba(255,255,255,0.06); --border-h: rgba(99,102,241,0.3);
-            --r: 12px; --rl: 16px;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-h: rgba(99, 102, 241, 0.3);
+            --r: 12px;
+            --rl: 16px;
         }
 
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
-            font-family:'Inter',system-ui,sans-serif;
-            background:var(--bg); color:var(--text);
-            min-height:100vh; line-height:1.6;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
         }
 
         .bg-fx {
-            position:fixed; inset:0; z-index:0; pointer-events:none;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
             background:
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.08), transparent),
-                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,0.06), transparent);
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139, 92, 246, 0.06), transparent);
         }
 
         .bg-grid {
-            position:fixed; inset:0; z-index:0; pointer-events:none;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
             background-image:
-                linear-gradient(rgba(99,102,241,0.02) 1px, transparent 1px),
-                linear-gradient(90deg,rgba(99,102,241,0.02) 1px, transparent 1px);
-            background-size:48px 48px;
+                linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+            background-size: 48px 48px;
         }
 
-        .app { position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
 
         /* ── Nav ── */
         .nav {
-            display:flex; align-items:center; justify-content:space-between;
-            margin-bottom:36px; animation:fadeIn .5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            animation: fadeIn .5s ease-out;
         }
 
         .nav-brand {
-            display:flex; align-items:center; gap:10px;
-            font-size:16px; font-weight:800; letter-spacing:-0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
 
         .nav-brand .logo {
-            width:32px; height:32px; border-radius:8px;
-            background:linear-gradient(135deg, var(--accent), #7c3aed);
-            display:flex; align-items:center; justify-content:center;
-            font-size:14px; color:#fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #fff;
         }
 
-        .nav-links { display:flex; gap:6px; }
+        .nav-links {
+            display: flex;
+            gap: 6px;
+        }
 
         .nav-link {
-            padding:8px 18px; border-radius:8px;
-            font-size:13px; font-weight:600;
-            text-decoration:none; color:var(--text2);
-            border:1px solid transparent;
-            transition:all .2s ease;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--text2);
+            border: 1px solid transparent;
+            transition: all .2s ease;
         }
 
-        .nav-link:hover { color:var(--text); background:var(--bg-glass); border-color:var(--border); }
-        .nav-link.active { color:var(--accent2); background:var(--accent-g); border-color:var(--border-h); }
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--bg-glass);
+            border-color: var(--border);
+        }
+
+        .nav-link.active {
+            color: var(--accent2);
+            background: var(--accent-g);
+            border-color: var(--border-h);
+        }
 
         /* ── Header ── */
         .hero {
-            text-align:center; margin-bottom:40px;
-            animation:fadeSlide .6s ease-out;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeSlide .6s ease-out;
         }
 
         .hero-chip {
-            display:inline-flex; align-items:center; gap:6px;
-            padding:5px 14px; background:var(--bg-glass);
-            border:1px solid var(--border); border-radius:100px;
-            font-size:11px; font-weight:600; color:var(--accent2);
-            letter-spacing:.6px; text-transform:uppercase; margin-bottom:14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent2);
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
         }
 
-        .hero-chip .dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 2s ease-in-out infinite; }
+        .hero-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: blink 2s ease-in-out infinite;
+        }
 
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .3
+            }
+        }
 
         .hero h1 {
-            font-size:clamp(26px,4.5vw,40px); font-weight:900; letter-spacing:-.03em;
-            background:linear-gradient(135deg,#fff 30%,var(--accent2));
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            font-size: clamp(26px, 4.5vw, 40px);
+            font-weight: 900;
+            letter-spacing: -.03em;
+            background: linear-gradient(135deg, #fff 30%, var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .hero p { font-size:14px; color:var(--text2); margin-top:6px; }
+        .hero p {
+            font-size: 14px;
+            color: var(--text2);
+            margin-top: 6px;
+        }
 
         /* ── Action Bar ── */
         .action-bar {
-            display:flex; align-items:center; justify-content:space-between; gap:16px;
-            background:var(--bg-card); border:1px solid var(--border);
-            border-radius:var(--r); padding:20px 28px; margin-bottom:32px;
-            animation:fadeSlide .5s ease-out .1s both;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 20px 28px;
+            margin-bottom: 16px;
+            animation: fadeSlide .5s ease-out .1s both;
         }
 
-        .action-bar p { font-size:14px; color:var(--text2); }
-        .action-bar strong { color:var(--text); }
+        .action-bar p {
+            font-size: 14px;
+            color: var(--text2);
+        }
+
+        .action-bar strong {
+            color: var(--text);
+        }
 
         .btn {
-            padding:12px 28px; background:linear-gradient(135deg,var(--accent),#7c3aed);
-            color:#fff; border:none; border-radius:10px;
-            font-family:inherit; font-size:13px; font-weight:700;
-            cursor:pointer; transition:all .2s ease; white-space:nowrap;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s ease;
+            white-space: nowrap;
         }
 
-        .btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(99,102,241,.35); }
-        .btn:active { transform:translateY(0); }
-        .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, .35);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Task Switcher ── */
+        .task-switcher {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 6px 8px;
+            margin-bottom: 32px;
+            animation: fadeSlide .5s ease-out .15s both;
+        }
+
+        .task-switcher .ts-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text3);
+            padding: 0 12px 0 10px;
+            white-space: nowrap;
+        }
+
+        .task-tab {
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .2s ease;
+            position: relative;
+        }
+
+        .task-tab:hover {
+            color: var(--text);
+            background: var(--bg-glass);
+        }
+
+        .task-tab.active {
+            color: var(--accent2);
+            background: var(--accent-g);
+            border-color: var(--border-h);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .task-tab .tab-count {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text3);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .task-tab.active .tab-count {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--accent2);
+        }
 
         .msg {
-            margin-top:12px; padding:12px 18px; border-radius:10px;
-            font-size:13px; font-weight:500; display:none; align-items:center; gap:8px;
+            margin-top: 12px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 8px;
         }
 
-        .msg.show { display:flex; animation:fadeIn .3s ease-out; }
-        .msg.loading { background:var(--accent-g); border:1px solid rgba(99,102,241,.15); color:var(--accent2); }
-        .msg.success { background:var(--green-bg); border:1px solid rgba(63,185,80,.2); color:var(--green); }
-        .msg.error { background:var(--red-bg); border:1px solid rgba(248,81,73,.2); color:var(--red); }
-        .msg.info { background:var(--orange-bg); border:1px solid rgba(210,153,34,.2); color:var(--orange); }
+        .msg.show {
+            display: flex;
+            animation: fadeIn .3s ease-out;
+        }
 
-        .spinner { width:14px; height:14px; border:2px solid transparent; border-top-color:currentColor; border-radius:50%; animation:spin .5s linear infinite; display:inline-block; }
-        @keyframes spin { to{transform:rotate(360deg)} }
+        .msg.loading {
+            background: var(--accent-g);
+            border: 1px solid rgba(99, 102, 241, .15);
+            color: var(--accent2);
+        }
+
+        .msg.success {
+            background: var(--green-bg);
+            border: 1px solid rgba(63, 185, 80, .2);
+            color: var(--green);
+        }
+
+        .msg.error {
+            background: var(--red-bg);
+            border: 1px solid rgba(248, 81, 73, .2);
+            color: var(--red);
+        }
+
+        .msg.info {
+            background: var(--orange-bg);
+            border: 1px solid rgba(210, 153, 34, .2);
+            color: var(--orange);
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin .5s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
 
         /* ── Sections ── */
-        .sec { display:none; margin-bottom:36px; }
-        .sec.show { display:block; animation:fadeSlide .5s ease-out; }
+        .sec {
+            display: none;
+            margin-bottom: 36px;
+        }
+
+        .sec.show {
+            display: block;
+            animation: fadeSlide .5s ease-out;
+        }
 
         .sec-label {
-            font-size:11px; font-weight:700; text-transform:uppercase;
-            letter-spacing:.08em; color:var(--text3); margin-bottom:14px;
-            display:flex; align-items:center; gap:10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--text3);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+        .sec-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
 
         /* ── Stat Cards ── */
-        .sg { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; }
+        .sg {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
 
         .sc {
-            background:var(--bg-card); border:1px solid var(--border);
-            border-radius:var(--r); padding:22px 20px;
-            position:relative; overflow:hidden;
-            transition:all .3s ease; opacity:0; transform:translateY(16px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 22px 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all .3s ease;
+            opacity: 0;
+            transform: translateY(16px);
         }
 
-        .sc.in { opacity:1; transform:translateY(0); transition:opacity .4s ease-out,transform .4s ease-out; }
-        .sc:hover { border-color:var(--border-h); transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.3); }
+        .sc.in {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity .4s ease-out, transform .4s ease-out;
+        }
 
-        .sc .lb { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
-        .sc .lb .d { width:8px; height:8px; border-radius:50%; }
-        .sc .vl { font-size:30px; font-weight:900; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.1; }
-        .sc .sub { font-size:11px; color:var(--text3); margin-top:6px; font-weight:500; }
+        .sc:hover {
+            border-color: var(--border-h);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+        }
 
-        .mb { margin-top:14px; width:100%; height:4px; background:rgba(255,255,255,.04); border-radius:100px; overflow:hidden; }
-        .mbf { height:100%; border-radius:100px; width:0%; transition:width 1.4s cubic-bezier(.22,1,.36,1); }
+        .sc .lb {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text3);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        .ct { display:inline-flex; align-items:center; gap:2px; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-top:6px; }
-        .ct.up { color:var(--red); background:var(--red-bg); }
-        .ct.dn { color:var(--green); background:var(--green-bg); }
-        .ct.eq { color:var(--text3); background:var(--bg-glass); }
+        .sc .lb .d {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
 
-        .c-a{color:var(--accent2)} .c-g{color:var(--green)} .c-r{color:var(--red)} .c-o{color:var(--orange)} .c-c{color:var(--cyan)} .c-p{color:var(--purple)}
-        .b-a{background:var(--accent2)} .b-g{background:var(--green)} .b-r{background:var(--red)} .b-o{background:var(--orange)} .b-c{background:var(--cyan)} .b-p{background:var(--purple)}
+        .sc .vl {
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -.02em;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        .sc .sub {
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .mb {
+            margin-top: 14px;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, .04);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .mbf {
+            height: 100%;
+            border-radius: 100px;
+            width: 0%;
+            transition: width 1.4s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .ct {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+
+        .ct.up {
+            color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .ct.dn {
+            color: var(--green);
+            background: var(--green-bg);
+        }
+
+        .ct.eq {
+            color: var(--text3);
+            background: var(--bg-glass);
+        }
+
+        .c-a {
+            color: var(--accent2)
+        }
+
+        .c-g {
+            color: var(--green)
+        }
+
+        .c-r {
+            color: var(--red)
+        }
+
+        .c-o {
+            color: var(--orange)
+        }
+
+        .c-c {
+            color: var(--cyan)
+        }
+
+        .c-p {
+            color: var(--purple)
+        }
+
+        .b-a {
+            background: var(--accent2)
+        }
+
+        .b-g {
+            background: var(--green)
+        }
+
+        .b-r {
+            background: var(--red)
+        }
+
+        .b-o {
+            background: var(--orange)
+        }
+
+        .b-c {
+            background: var(--cyan)
+        }
+
+        .b-p {
+            background: var(--purple)
+        }
 
         /* ── Table ── */
-        .tc { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--rl); overflow:hidden; }
-        .tt { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border); }
-        .tt h3 { font-size:14px; font-weight:700; }
-        .tt span { font-size:12px; color:var(--text3); font-weight:500; }
-
-        table { width:100%; border-collapse:collapse; }
-
-        thead th {
-            padding:12px 20px; text-align:left; font-size:10px; font-weight:700;
-            text-transform:uppercase; letter-spacing:.07em; color:var(--text3);
-            background:rgba(255,255,255,.01); border-bottom:1px solid var(--border);
+        .tc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--rl);
+            overflow: hidden;
         }
 
-        tbody tr { border-bottom:1px solid var(--border); transition:background .15s ease; animation:rowIn .3s ease-out both; }
-        tbody tr:last-child { border-bottom:none; }
-        tbody tr:hover { background:rgba(99,102,241,.03); }
-        tbody tr:first-child { background:rgba(99,102,241,.04); }
+        .tt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+        }
 
-        tbody td { padding:14px 20px; font-size:13px; color:var(--text2); }
+        .tt h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
 
-        @keyframes rowIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+        .tt span {
+            font-size: 12px;
+            color: var(--text3);
+            font-weight: 500;
+        }
 
-        .td-t { font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }
-        .td-f { font-weight:700; font-variant-numeric:tabular-nums; }
-        .f0{color:var(--green)} .fl{color:var(--orange)} .fh{color:var(--red)}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-        .pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700; }
-        .pill-g { background:var(--green-bg); color:var(--green); border:1px solid rgba(63,185,80,.2); }
-        .pill-r { background:var(--red-bg); color:var(--red); border:1px solid rgba(248,81,73,.2); }
+        thead th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text3);
+            background: rgba(255, 255, 255, .01);
+            border-bottom: 1px solid var(--border);
+        }
 
-        .td-d { font-size:12px; color:var(--text3); }
-        .nt { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:2px 5px; border-radius:3px; background:var(--accent-g); color:var(--accent2); margin-left:5px; vertical-align:middle; }
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .15s ease;
+            animation: rowIn .3s ease-out both;
+        }
 
-        .footer { text-align:center; margin-top:48px; padding-top:20px; border-top:1px solid var(--border); font-size:12px; color:var(--text3); }
-        .footer a { color:var(--accent2); text-decoration:none; font-weight:600; }
-        .footer a:hover { text-decoration:underline; }
+        tbody tr:last-child {
+            border-bottom: none;
+        }
 
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-        @keyframes fadeSlide { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        tbody tr:hover {
+            background: rgba(99, 102, 241, .03);
+        }
+
+        tbody tr:first-child {
+            background: rgba(99, 102, 241, .04);
+        }
+
+        tbody td {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        @keyframes rowIn {
+            from {
+                opacity: 0;
+                transform: translateX(-8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        .td-t {
+            font-weight: 700;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .td-f {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .f0 {
+            color: var(--green)
+        }
+
+        .fl {
+            color: var(--orange)
+        }
+
+        .fh {
+            color: var(--red)
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .pill-g {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(63, 185, 80, .2);
+        }
+
+        .pill-r {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid rgba(248, 81, 73, .2);
+        }
+
+        .pill-task {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: .03em;
+        }
+
+        .pill-t1 {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(88, 166, 255, .2);
+        }
+
+        .pill-t2 {
+            background: rgba(188, 140, 255, 0.1);
+            color: var(--purple);
+            border: 1px solid rgba(188, 140, 255, .2);
+        }
+
+        .td-d {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        .nt {
+            font-size: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: var(--accent-g);
+            color: var(--accent2);
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        .footer a {
+            color: var(--accent2);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(14px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
 
         @media(max-width:700px) {
-            .app{padding:20px 14px 60px}
-            .nav{flex-direction:column;gap:12px}
-            .nav-brand{font-size:15px}
-            .nav-links{width:100%;justify-content:center}
-            .nav-link{padding:7px 14px;font-size:12px}
-            .hero h1{font-size:24px}
-            .hero p{font-size:13px}
-            .hero-chip{font-size:10px;padding:4px 12px}
-            .action-bar{flex-direction:column;text-align:center;padding:18px 20px}
-            .btn{width:100%}
-            .sg{grid-template-columns:1fr 1fr;gap:10px}
-            .sc{padding:16px 14px}
-            .sc .vl{font-size:22px}
-            .sc .lb{font-size:9px}
-            thead th,tbody td{padding:10px 12px;font-size:12px}
-            .tc{border-radius:var(--r)}
-            .tt{padding:14px 16px}
-            .tt h3{font-size:13px}
+            .app {
+                padding: 20px 14px 60px
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 12px
+            }
+
+            .nav-brand {
+                font-size: 15px
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center
+            }
+
+            .nav-link {
+                padding: 7px 14px;
+                font-size: 12px
+            }
+
+            .hero h1 {
+                font-size: 24px
+            }
+
+            .hero p {
+                font-size: 13px
+            }
+
+            .hero-chip {
+                font-size: 10px;
+                padding: 4px 12px
+            }
+
+            .action-bar {
+                flex-direction: column;
+                text-align: center;
+                padding: 18px 20px
+            }
+
+            .btn {
+                width: 100%
+            }
+
+            .task-switcher {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+                padding: 10px 12px;
+            }
+
+            .task-switcher .ts-label {
+                width: 100%;
+                text-align: center;
+                padding: 0 0 4px;
+            }
+
+            .task-tab {
+                padding: 8px 16px;
+                font-size: 11px;
+            }
+
+            .sg {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px
+            }
+
+            .sc {
+                padding: 16px 14px
+            }
+
+            .sc .vl {
+                font-size: 22px
+            }
+
+            .sc .lb {
+                font-size: 9px
+            }
+
+            thead th,
+            tbody td {
+                padding: 10px 12px;
+                font-size: 12px
+            }
+
+            .tc {
+                border-radius: var(--r)
+            }
+
+            .tt {
+                padding: 14px 16px
+            }
+
+            .tt h3 {
+                font-size: 13px
+            }
         }
 
         @media(max-width:400px) {
-            .sg{grid-template-columns:1fr}
-            .nav-link{padding:6px 10px;font-size:11px}
-            thead th:first-child,tbody td:first-child{display:none}
+            .sg {
+                grid-template-columns: 1fr
+            }
+
+            .nav-link {
+                padding: 6px 10px;
+                font-size: 11px
+            }
+
+            thead th:first-child,
+            tbody td:first-child {
+                display: none
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="bg-fx"></div>
-<div class="bg-grid"></div>
+    <div class="bg-fx"></div>
+    <div class="bg-grid"></div>
 
-<div class="app">
+    <div class="app">
 
-    <!-- Nav -->
-    <nav class="nav">
-        <div class="nav-brand">
-            <div class="logo">N</div>
-            NeuroNavi
+        <!-- Nav -->
+        <nav class="nav">
+            <div class="nav-brand">
+                <div class="logo">N</div>
+                NeuroNavi
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">📊 Dashboard</a>
+                <a href="visualize.html" class="nav-link">📈 Visualize</a>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <header class="hero">
+            <div class="hero-chip"><span class="dot"></span> Live Analytics</div>
+            <h1>Game Dashboard</h1>
+            <p>Real-time gameplay stats from Navi Island</p>
+        </header>
+
+        <!-- Load -->
+        <div class="action-bar">
+            <p><strong>Load game sessions</strong> — stats, trends and session history.</p>
+            <button class="btn" id="loadBtn" onclick="loadData()">🔄 Load Stats</button>
         </div>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link active">📊 Dashboard</a>
-            <a href="visualize.html" class="nav-link">📈 Visualize</a>
+        <div class="msg" id="msg"></div>
+
+        <!-- Task Switcher -->
+        <div class="task-switcher" id="taskSwitcher" style="display:none;">
+            <span class="ts-label">🎯 Filter</span>
+            <button class="task-tab active" data-task="all" onclick="switchTask('all')">All Tasks <span class="tab-count" id="cAll">0</span></button>
+            <button class="task-tab" data-task="Task 1" onclick="switchTask('Task 1')">🏝️ Task 1 <span class="tab-count" id="cT1">0</span></button>
+            <button class="task-tab" data-task="Task 2" onclick="switchTask('Task 2')">🧠 Task 2 <span class="tab-count" id="cT2">0</span></button>
         </div>
-    </nav>
 
-    <!-- Hero -->
-    <header class="hero">
-        <div class="hero-chip"><span class="dot"></span> Live Analytics</div>
-        <h1>Game Dashboard</h1>
-        <p>Real-time gameplay stats from Navi Island</p>
-    </header>
+        <!-- Latest -->
+        <section class="sec" id="sL">
+            <div class="sec-label">🕐 Latest Session</div>
+            <div class="sg" id="gL">
+                <div class="sc" data-d="0">
+                    <div class="lb"><span class="d b-c"></span>Time</div>
+                    <div class="vl c-c" id="lT">—</div>
+                    <div class="sub">seconds</div>
+                    <div id="lTC"></div>
+                    <div class="mb">
+                        <div class="mbf b-c" id="lTB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="1">
+                    <div class="lb"><span class="d b-r"></span>Fails</div>
+                    <div class="vl c-r" id="lF">—</div>
+                    <div class="sub">attempts</div>
+                    <div id="lFC"></div>
+                    <div class="mb">
+                        <div class="mbf b-r" id="lFB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="2">
+                    <div class="lb"><span class="d b-g"></span>Completed</div>
+                    <div class="vl c-g" id="lC">—</div>
+                    <div class="sub">times</div>
+                    <div class="mb">
+                        <div class="mbf b-g" id="lCB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="3" id="lPC" style="display:none;">
+                    <div class="lb"><span class="d b-p"></span>Pass Count</div>
+                    <div class="vl c-p" id="lP">—</div>
+                    <div class="sub">correct</div>
+                    <div class="mb">
+                        <div class="mbf b-p" id="lPB"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Load -->
-    <div class="action-bar">
-        <p><strong>Load game sessions</strong> — stats, trends and session history.</p>
-        <button class="btn" id="loadBtn" onclick="loadData()">🔄 Load Stats</button>
+        <!-- Overall -->
+        <section class="sec" id="sO">
+            <div class="sec-label">📊 Overall Statistics</div>
+            <div class="sg" id="gO">
+                <div class="sc" data-d="0">
+                    <div class="lb"><span class="d b-a"></span>Sessions</div>
+                    <div class="vl c-a" id="oS">—</div>
+                    <div class="sub">total</div>
+                    <div class="mb">
+                        <div class="mbf b-a" id="oSB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="1">
+                    <div class="lb"><span class="d b-o"></span>Avg Time</div>
+                    <div class="vl c-o" id="oA">—</div>
+                    <div class="sub">seconds</div>
+                    <div class="mb">
+                        <div class="mbf b-o" id="oAB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="2">
+                    <div class="lb"><span class="d b-g"></span>Completions</div>
+                    <div class="vl c-g" id="oC">—</div>
+                    <div class="sub">total</div>
+                    <div class="mb">
+                        <div class="mbf b-g" id="oCB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="3">
+                    <div class="lb"><span class="d b-r"></span>Fails</div>
+                    <div class="vl c-r" id="oF">—</div>
+                    <div class="sub">total</div>
+                    <div class="mb">
+                        <div class="mbf b-r" id="oFB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="4">
+                    <div class="lb"><span class="d b-p"></span>Best Time</div>
+                    <div class="vl c-p" id="oB">—</div>
+                    <div class="sub">fastest</div>
+                    <div class="mb">
+                        <div class="mbf b-p" id="oBB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="5">
+                    <div class="lb"><span class="d b-c"></span>Worst Time</div>
+                    <div class="vl c-c" id="oW">—</div>
+                    <div class="sub">slowest</div>
+                    <div class="mb">
+                        <div class="mbf b-c" id="oWB"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table -->
+        <section class="sec" id="sT">
+            <div class="sec-label">📋 Session History</div>
+            <div class="tc">
+                <div class="tt">
+                    <h3>All Sessions</h3><span id="tC"></span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Task</th>
+                            <th>Time</th>
+                            <th>Fails</th>
+                            <th>Completed</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="footer">
+            NeuroNavi &mdash; Unity → Supabase → Web &mdash; <a href="#">Navi Island</a>
+        </footer>
     </div>
-    <div class="msg" id="msg"></div>
 
-    <!-- Latest -->
-    <section class="sec" id="sL">
-        <div class="sec-label">🕐 Latest Session</div>
-        <div class="sg" id="gL">
-            <div class="sc" data-d="0">
-                <div class="lb"><span class="d b-c"></span>Time</div>
-                <div class="vl c-c" id="lT">—</div><div class="sub">seconds</div>
-                <div id="lTC"></div>
-                <div class="mb"><div class="mbf b-c" id="lTB"></div></div>
-            </div>
-            <div class="sc" data-d="1">
-                <div class="lb"><span class="d b-r"></span>Fails</div>
-                <div class="vl c-r" id="lF">—</div><div class="sub">attempts</div>
-                <div id="lFC"></div>
-                <div class="mb"><div class="mbf b-r" id="lFB"></div></div>
-            </div>
-            <div class="sc" data-d="2">
-                <div class="lb"><span class="d b-g"></span>Completed</div>
-                <div class="vl c-g" id="lC">—</div><div class="sub">times</div>
-                <div class="mb"><div class="mbf b-g" id="lCB"></div></div>
-            </div>
-        </div>
-    </section>
+    <script>
+        const SUPA_URL = "https://armtgguvlpmkkjniqvli.supabase.co";
+        const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
 
-    <!-- Overall -->
-    <section class="sec" id="sO">
-        <div class="sec-label">📊 Overall Statistics</div>
-        <div class="sg" id="gO">
-            <div class="sc" data-d="0"><div class="lb"><span class="d b-a"></span>Sessions</div><div class="vl c-a" id="oS">—</div><div class="sub">total</div><div class="mb"><div class="mbf b-a" id="oSB"></div></div></div>
-            <div class="sc" data-d="1"><div class="lb"><span class="d b-o"></span>Avg Time</div><div class="vl c-o" id="oA">—</div><div class="sub">seconds</div><div class="mb"><div class="mbf b-o" id="oAB"></div></div></div>
-            <div class="sc" data-d="2"><div class="lb"><span class="d b-g"></span>Completions</div><div class="vl c-g" id="oC">—</div><div class="sub">total</div><div class="mb"><div class="mbf b-g" id="oCB"></div></div></div>
-            <div class="sc" data-d="3"><div class="lb"><span class="d b-r"></span>Fails</div><div class="vl c-r" id="oF">—</div><div class="sub">total</div><div class="mb"><div class="mbf b-r" id="oFB"></div></div></div>
-            <div class="sc" data-d="4"><div class="lb"><span class="d b-p"></span>Best Time</div><div class="vl c-p" id="oB">—</div><div class="sub">fastest</div><div class="mb"><div class="mbf b-p" id="oBB"></div></div></div>
-            <div class="sc" data-d="5"><div class="lb"><span class="d b-c"></span>Worst Time</div><div class="vl c-c" id="oW">—</div><div class="sub">slowest</div><div class="mb"><div class="mbf b-c" id="oWB"></div></div></div>
-        </div>
-    </section>
+        const loadBtn = document.getElementById("loadBtn"), msgEl = document.getElementById("msg");
+        let allData = [];
+        let currentTask = "all";
 
-    <!-- Table -->
-    <section class="sec" id="sT">
-        <div class="sec-label">📋 Session History</div>
-        <div class="tc">
-            <div class="tt"><h3>All Sessions</h3><span id="tC"></span></div>
-            <table>
-                <thead><tr><th>#</th><th>Time</th><th>Fails</th><th>Completed</th><th>Date</th></tr></thead>
-                <tbody id="tb"></tbody>
-            </table>
-        </div>
-    </section>
+        window.addEventListener("DOMContentLoaded", loadData);
 
-    <footer class="footer">
-        NeuroNavi &mdash; Unity → Supabase → Web &mdash; <a href="#">Navi Island</a>
-    </footer>
-</div>
+        function showMsg(t, c) { msgEl.className = `msg show ${c}`; msgEl.innerHTML = c === "loading" ? `<span class="spinner"></span> ${t}` : t; }
+        function hideMsg() { msgEl.className = "msg"; }
+        function anim(el, end, dur = 1000, dec = 0, suf = "") { const s = performance.now(); (function f(n) { const t = Math.min((n - s) / dur, 1); el.textContent = (end * (1 - Math.pow(1 - t, 3))).toFixed(dec) + suf; if (t < 1) requestAnimationFrame(f) })(s); }
+        function bar(el, p, d = 0) { setTimeout(() => { el.style.width = Math.min(p, 100) + "%" }, d); }
+        function stagger(id) { document.querySelectorAll(`#${id} .sc`).forEach((c, i) => setTimeout(() => c.classList.add("in"), i * 100)); }
+        function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
 
-<script>
-const SUPA_URL="https://armtgguvlpmkkjniqvli.supabase.co";
-const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
+        function filterData(task) {
+            if (task === "all") return allData;
+            return allData.filter(d => (d.task_name || "Task 1") === task);
+        }
 
-const loadBtn=document.getElementById("loadBtn"),msgEl=document.getElementById("msg");
+        function switchTask(task) {
+            currentTask = task;
+            document.querySelectorAll(".task-tab").forEach(t => t.classList.toggle("active", t.dataset.task === task));
+            // Reset animations
+            ["sL", "sO", "sT"].forEach(id => document.getElementById(id).classList.remove("show"));
+            document.querySelectorAll(".sc").forEach(c => c.classList.remove("in"));
+            document.querySelectorAll(".mbf").forEach(b => b.style.width = "0%");
+            // Re-render
+            const data = filterData(task);
+            if (data.length > 0) {
+                renderLatest(data);
+                renderOverall(data);
+                renderTable(data);
+            } else {
+                showMsg(`🔍 No sessions for ${task === "all" ? "any task" : task} yet.`, "info");
+                setTimeout(hideMsg, 3000);
+            }
+        }
 
-window.addEventListener("DOMContentLoaded",loadData);
+        async function loadData() {
+            showMsg("Fetching…", "loading"); loadBtn.disabled = true;
+            ["sL", "sO", "sT"].forEach(id => document.getElementById(id).classList.remove("show"));
+            document.querySelectorAll(".sc").forEach(c => c.classList.remove("in"));
+            document.querySelectorAll(".mbf").forEach(b => b.style.width = "0%");
 
-function showMsg(t,c){msgEl.className=`msg show ${c}`;msgEl.innerHTML=c==="loading"?`<span class="spinner"></span> ${t}`:t;}
-function hideMsg(){msgEl.className="msg";}
-function anim(el,end,dur=1000,dec=0,suf=""){const s=performance.now();(function f(n){const t=Math.min((n-s)/dur,1);el.textContent=(end*(1-Math.pow(1-t,3))).toFixed(dec)+suf;if(t<1)requestAnimationFrame(f)})(s);}
-function bar(el,p,d=0){setTimeout(()=>{el.style.width=Math.min(p,100)+"%"},d);}
-function stagger(id){document.querySelectorAll(`#${id} .sc`).forEach((c,i)=>setTimeout(()=>c.classList.add("in"),i*100));}
-function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML;}
+            try {
+                const r = await fetch(`${SUPA_URL}/rest/v1/game_stats?order=created_at.desc`, { headers: { "apikey": SUPA_KEY, "Authorization": `Bearer ${SUPA_KEY}`, "Content-Type": "application/json" } });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+                if (!data || data.length === 0) { showMsg("🔍 No sessions yet — play your game!", "info"); loadBtn.disabled = false; return; }
 
-async function loadData(){
-    showMsg("Fetching…","loading"); loadBtn.disabled=true;
-    ["sL","sO","sT"].forEach(id=>document.getElementById(id).classList.remove("show"));
-    document.querySelectorAll(".sc").forEach(c=>c.classList.remove("in"));
-    document.querySelectorAll(".mbf").forEach(b=>b.style.width="0%");
+                allData = data;
 
-    try{
-        const r=await fetch(`${SUPA_URL}/rest/v1/game_stats?order=created_at.desc`,{headers:{"apikey":SUPA_KEY,"Authorization":`Bearer ${SUPA_KEY}`,"Content-Type":"application/json"}});
-        if(!r.ok)throw new Error(`HTTP ${r.status}`);
-        const data=await r.json();
-        if(!data||data.length===0){showMsg("🔍 No sessions yet — play your game!","info");loadBtn.disabled=false;return;}
-        showMsg(`✅ ${data.length} session${data.length>1?"s":""}loaded`,"success");setTimeout(hideMsg,3000);
-        renderLatest(data);renderOverall(data);renderTable(data);
-    }catch(e){showMsg(`❌ ${esc(e.message)}`,"error");console.error(e);}
-    finally{loadBtn.disabled=false;}
-}
+                // Update tab counts
+                const t1Count = data.filter(d => (d.task_name || "Task 1") === "Task 1").length;
+                const t2Count = data.filter(d => (d.task_name || "Task 1") === "Task 2").length;
+                document.getElementById("cAll").textContent = data.length;
+                document.getElementById("cT1").textContent = t1Count;
+                document.getElementById("cT2").textContent = t2Count;
+                document.getElementById("taskSwitcher").style.display = "flex";
 
-function renderLatest(d){
-    const L=d[0],mT=Math.max(...d.map(x=>x.time||0),1),mF=Math.max(...d.map(x=>x.fails||0),1),mC=Math.max(...d.map(x=>x.timesCompleted||0),1);
-    anim(document.getElementById("lT"),L.time||0,1200,2,"s");
-    anim(document.getElementById("lF"),L.fails||0,800,0);
-    anim(document.getElementById("lC"),L.timesCompleted||0,800,0,"x");
-    bar(document.getElementById("lTB"),((L.time||0)/mT)*100,300);
-    bar(document.getElementById("lFB"),((L.fails||0)/mF)*100,400);
-    bar(document.getElementById("lCB"),((L.timesCompleted||0)/mC)*100,500);
+                showMsg(`✅ ${data.length} session${data.length > 1 ? "s" : ""} loaded`, "success"); setTimeout(hideMsg, 3000);
+                const filtered = filterData(currentTask);
+                renderLatest(filtered); renderOverall(filtered); renderTable(filtered);
+            } catch (e) { showMsg(`❌ ${esc(e.message)}`, "error"); console.error(e); }
+            finally { loadBtn.disabled = false; }
+        }
 
-    if(d.length>1){
-        const avg=d.reduce((s,x)=>s+(x.time||0),0)/d.length,df=L.time-avg,p=Math.abs((df/avg)*100).toFixed(0);
-        document.getElementById("lTC").innerHTML=df<-.5?`<div class="ct dn">↓ ${p}% faster</div>`:df>.5?`<div class="ct up">↑ ${p}% slower</div>`:`<div class="ct eq">≈ avg</div>`;
-        const aF=d.reduce((s,x)=>s+(x.fails||0),0)/d.length,dF=L.fails-aF,pF=Math.abs((dF/(aF||1))*100).toFixed(0);
-        document.getElementById("lFC").innerHTML=dF<-.5?`<div class="ct dn">↓ ${pF}% fewer</div>`:dF>.5?`<div class="ct up">↑ ${pF}% more</div>`:`<div class="ct eq">≈ avg</div>`;
-    }
-    document.getElementById("sL").classList.add("show");stagger("gL");
-}
+        function renderLatest(d) {
+            if (d.length === 0) return;
+            const L = d[0], mT = Math.max(...d.map(x => x.time || 0), 1), mF = Math.max(...d.map(x => x.fails || 0), 1), mC = Math.max(...d.map(x => x.timesCompleted || 0), 1);
+            anim(document.getElementById("lT"), L.time || 0, 1200, 2, "s");
+            anim(document.getElementById("lF"), L.fails || 0, 800, 0);
+            anim(document.getElementById("lC"), L.timesCompleted || 0, 800, 0, "x");
+            bar(document.getElementById("lTB"), ((L.time || 0) / mT) * 100, 300);
+            bar(document.getElementById("lFB"), ((L.fails || 0) / mF) * 100, 400);
+            bar(document.getElementById("lCB"), ((L.timesCompleted || 0) / mC) * 100, 500);
 
-function renderOverall(d){
-    const n=d.length,tF=d.reduce((s,x)=>s+(x.fails||0),0),aT=d.reduce((s,x)=>s+(x.time||0),0)/n,tC=d.reduce((s,x)=>s+(x.timesCompleted||0),0);
-    const bT=Math.min(...d.map(x=>x.time||Infinity)),wT=Math.max(...d.map(x=>x.time||0));
-    anim(document.getElementById("oS"),n,800,0);anim(document.getElementById("oA"),aT,1200,1,"s");
-    anim(document.getElementById("oC"),tC,1000,0);anim(document.getElementById("oF"),tF,1000,0);
-    anim(document.getElementById("oB"),bT,1000,2,"s");anim(document.getElementById("oW"),wT,1000,2,"s");
-    bar(document.getElementById("oSB"),(n/50)*100,400);bar(document.getElementById("oAB"),(aT/120)*100,500);
-    bar(document.getElementById("oCB"),(tC/Math.max(n,10))*100,600);bar(document.getElementById("oFB"),(tF/Math.max(n*3,10))*100,700);
-    bar(document.getElementById("oBB"),(bT/wT)*100,800);bar(document.getElementById("oWB"),100,900);
-    document.getElementById("sO").classList.add("show");setTimeout(()=>stagger("gO"),150);
-}
+            // Show pass_count card if Task 2 or all tasks with latest being Task 2
+            const latestTask = L.task_name || "Task 1";
+            const passCard = document.getElementById("lPC");
+            if (latestTask === "Task 2" || (currentTask === "all" && L.pass_count > 0)) {
+                passCard.style.display = "block";
+                anim(document.getElementById("lP"), L.pass_count || 0, 800, 0);
+                const mP = Math.max(...d.map(x => x.pass_count || 0), 1);
+                bar(document.getElementById("lPB"), ((L.pass_count || 0) / mP) * 100, 600);
+            } else {
+                passCard.style.display = "none";
+            }
 
-function renderTable(d){
-    document.getElementById("tC").textContent=`${d.length} session${d.length>1?"s":""}`;
-    document.getElementById("tb").innerHTML=d.map((r,i)=>{
-        const fc=r.fails===0?"f0":r.fails<=3?"fl":"fh";
-        const cp=(r.timesCompleted||0)>=1?`<span class="pill pill-g">✓ ${r.timesCompleted}x</span>`:`<span class="pill pill-r">✗ 0</span>`;
-        const dt=r.created_at?new Date(r.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit"}):"—";
-        const nt=i===0?`<span class="nt">latest</span>`:"";
-        return`<tr style="animation-delay:${i*.04}s"><td style="color:var(--text3);font-size:12px">${i+1}${nt}</td><td class="td-t">${(r.time||0).toFixed(2)}s</td><td class="td-f ${fc}">${r.fails}</td><td>${cp}</td><td class="td-d">${dt}</td></tr>`;
-    }).join("");
-    document.getElementById("sT").classList.add("show");
-}
-</script>
+            if (d.length > 1) {
+                const avg = d.reduce((s, x) => s + (x.time || 0), 0) / d.length, df = L.time - avg, p = Math.abs((df / avg) * 100).toFixed(0);
+                document.getElementById("lTC").innerHTML = df < -.5 ? `<div class="ct dn">↓ ${p}% faster</div>` : df > .5 ? `<div class="ct up">↑ ${p}% slower</div>` : `<div class="ct eq">≈ avg</div>`;
+                const aF = d.reduce((s, x) => s + (x.fails || 0), 0) / d.length, dF = L.fails - aF, pF = Math.abs((dF / (aF || 1)) * 100).toFixed(0);
+                document.getElementById("lFC").innerHTML = dF < -.5 ? `<div class="ct dn">↓ ${pF}% fewer</div>` : dF > .5 ? `<div class="ct up">↑ ${pF}% more</div>` : `<div class="ct eq">≈ avg</div>`;
+            } else {
+                document.getElementById("lTC").innerHTML = "";
+                document.getElementById("lFC").innerHTML = "";
+            }
+            document.getElementById("sL").classList.add("show"); stagger("gL");
+        }
+
+        function renderOverall(d) {
+            if (d.length === 0) return;
+            const n = d.length, tF = d.reduce((s, x) => s + (x.fails || 0), 0), aT = d.reduce((s, x) => s + (x.time || 0), 0) / n, tC = d.reduce((s, x) => s + (x.timesCompleted || 0), 0);
+            const bT = Math.min(...d.map(x => x.time || Infinity)), wT = Math.max(...d.map(x => x.time || 0));
+            anim(document.getElementById("oS"), n, 800, 0); anim(document.getElementById("oA"), aT, 1200, 1, "s");
+            anim(document.getElementById("oC"), tC, 1000, 0); anim(document.getElementById("oF"), tF, 1000, 0);
+            anim(document.getElementById("oB"), bT, 1000, 2, "s"); anim(document.getElementById("oW"), wT, 1000, 2, "s");
+            bar(document.getElementById("oSB"), (n / 50) * 100, 400); bar(document.getElementById("oAB"), (aT / 120) * 100, 500);
+            bar(document.getElementById("oCB"), (tC / Math.max(n, 10)) * 100, 600); bar(document.getElementById("oFB"), (tF / Math.max(n * 3, 10)) * 100, 700);
+            bar(document.getElementById("oBB"), (bT / wT) * 100, 800); bar(document.getElementById("oWB"), 100, 900);
+            document.getElementById("sO").classList.add("show"); setTimeout(() => stagger("gO"), 150);
+        }
+
+        function renderTable(d) {
+            if (d.length === 0) return;
+            document.getElementById("tC").textContent = `${d.length} session${d.length > 1 ? "s" : ""}`;
+            document.getElementById("tb").innerHTML = d.map((r, i) => {
+                const fc = r.fails === 0 ? "f0" : r.fails <= 3 ? "fl" : "fh";
+                const cp = (r.timesCompleted || 0) >= 1 ? `<span class="pill pill-g">✓ ${r.timesCompleted}x</span>` : `<span class="pill pill-r">✗ 0</span>`;
+                const dt = r.created_at ? new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+                const nt = i === 0 ? `<span class="nt">latest</span>` : "";
+                const tn = r.task_name || "Task 1";
+                const tPill = tn === "Task 2" ? `<span class="pill-task pill-t2">🧠 Task 2</span>` : `<span class="pill-task pill-t1">🏝️ Task 1</span>`;
+                return `<tr style="animation-delay:${i * .04}s"><td style="color:var(--text3);font-size:12px">${i + 1}${nt}</td><td>${tPill}</td><td class="td-t">${(r.time || 0).toFixed(2)}s</td><td class="td-f ${fc}">${r.fails}</td><td>${cp}</td><td class="td-d">${dt}</td></tr>`;
+            }).join("");
+            document.getElementById("sT").classList.add("show");
+        }
+    </script>
 
 </body>
+
 </html>

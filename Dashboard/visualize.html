@@ -58,7 +58,7 @@
 
         .app { position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
 
-        /* ── Nav (identical to dashboard) ── */
+        /* ── Nav ── */
         .nav {
             display:flex; align-items:center; justify-content:space-between;
             margin-bottom:36px; animation:fadeIn .5s ease-out;
@@ -123,7 +123,7 @@
         .action-bar {
             display:flex; align-items:center; justify-content:space-between; gap:16px;
             background:var(--bg-card); border:1px solid var(--border);
-            border-radius:var(--r); padding:20px 28px; margin-bottom:32px;
+            border-radius:var(--r); padding:20px 28px; margin-bottom:16px;
             animation:fadeSlide .5s ease-out .1s both;
         }
 
@@ -140,6 +140,39 @@
         .btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(99,102,241,.35); }
         .btn:active { transform:translateY(0); }
         .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+        /* ── Task Switcher ── */
+        .task-switcher {
+            display:none; align-items:center; gap:4px;
+            background:var(--bg-card); border:1px solid var(--border);
+            border-radius:var(--r); padding:6px 8px; margin-bottom:32px;
+            animation:fadeSlide .5s ease-out .15s both;
+        }
+
+        .task-switcher .ts-label {
+            font-size:11px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.06em; color:var(--text3); padding:0 12px 0 10px; white-space:nowrap;
+        }
+
+        .task-tab {
+            padding:10px 22px; border-radius:8px; font-size:12px; font-weight:700;
+            color:var(--text2); background:transparent; border:1px solid transparent;
+            cursor:pointer; font-family:inherit; transition:all .2s ease;
+        }
+
+        .task-tab:hover { color:var(--text); background:var(--bg-glass); }
+
+        .task-tab.active {
+            color:var(--accent2); background:var(--accent-g);
+            border-color:var(--border-h); box-shadow:0 0 12px rgba(99,102,241,0.1);
+        }
+
+        .task-tab .tab-count {
+            font-size:9px; font-weight:800; padding:1px 5px; border-radius:4px;
+            background:rgba(255,255,255,0.06); color:var(--text3); margin-left:6px; vertical-align:middle;
+        }
+
+        .task-tab.active .tab-count { background:rgba(99,102,241,0.2); color:var(--accent2); }
 
         /* ── Messages ── */
         .msg {
@@ -347,6 +380,12 @@
             .action-bar { flex-direction:column; text-align:center; padding:18px 20px; }
             .btn { width:100%; }
 
+            .task-switcher {
+                flex-wrap:wrap; justify-content:center; gap:6px; padding:10px 12px;
+            }
+            .task-switcher .ts-label { width:100%; text-align:center; padding:0 0 4px; }
+            .task-tab { padding:8px 16px; font-size:11px; }
+
             .sg { grid-template-columns:1fr 1fr; gap:10px; }
             .sc { padding:16px 14px; }
             .sc .vl { font-size:22px; }
@@ -379,7 +418,7 @@
 
 <div class="app">
 
-    <!-- Nav (same as dashboard) -->
+    <!-- Nav -->
     <nav class="nav">
         <div class="nav-brand">
             <div class="logo">N</div>
@@ -405,6 +444,14 @@
     </div>
     <div class="msg" id="msg"></div>
 
+    <!-- Task Switcher -->
+    <div class="task-switcher" id="taskSwitcher">
+        <span class="ts-label">🎯 Filter</span>
+        <button class="task-tab active" data-task="all" onclick="switchTask('all')">All Tasks <span class="tab-count" id="cAll">0</span></button>
+        <button class="task-tab" data-task="Task 1" onclick="switchTask('Task 1')">🏝️ Task 1 <span class="tab-count" id="cT1">0</span></button>
+        <button class="task-tab" data-task="Task 2" onclick="switchTask('Task 2')">🧠 Task 2 <span class="tab-count" id="cT2">0</span></button>
+    </div>
+
     <!-- ═══ Performance Metrics ═══ -->
     <section class="sec" id="secMetrics" data-anim="metrics">
         <div class="sec-label">📊 Key Metrics</div>
@@ -415,6 +462,23 @@
             <div class="sc"><div class="lb"><span class="d b-r"></span>Worst Time</div><div class="vl c-r" id="mWorst">0s</div><div class="sub">slowest run</div><div class="mb"><div class="mbf b-r" id="mWorstBar"></div></div></div>
             <div class="sc"><div class="lb"><span class="d b-r"></span>Total Fails</div><div class="vl c-r" id="mFails">0</div><div class="sub">accumulated</div><div class="mb"><div class="mbf b-r" id="mFailsBar"></div></div></div>
             <div class="sc"><div class="lb"><span class="d b-g"></span>Completions</div><div class="vl c-g" id="mComp">0</div><div class="sub">total achieved</div><div class="mb"><div class="mbf b-g" id="mCompBar"></div></div></div>
+        </div>
+    </section>
+
+    <!-- ═══ Task Comparison (visible in "All Tasks" mode) ═══ -->
+    <section class="sec" id="secCompare" data-anim="compare">
+        <div class="sec-label">⚔️ Task Comparison</div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="ch-title">Average Time by Task</div>
+                <div class="ch-sub">Side-by-side comparison of mean completion time</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cCompTime"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="ch-title">Average Fails by Task</div>
+                <div class="ch-sub">Compare fail rates across tasks</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cCompFails"></canvas></div>
+            </div>
         </div>
     </section>
 
@@ -521,10 +585,11 @@ const SUPA_URL = "https://armtgguvlpmkkjniqvli.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFybXRnZ3V2bHBta2tqbmlxdmxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1Nzg2ODUsImV4cCI6MjA5MTE1NDY4NX0.zWCAnJOio1UkQl1Xq8KARx-YSdvaY8lNLGa9OEHvw40";
 
 let charts = {};
-let cachedData = null;
+let allData = null;
+let currentTask = "all";
 const animated = {};
 
-// Chart.js theme — match dashboard colors
+// Chart.js theme
 Chart.defaults.color = "#8b949e";
 Chart.defaults.borderColor = "rgba(255,255,255,0.04)";
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
@@ -536,7 +601,6 @@ Chart.defaults.maintainAspectRatio = false;
 const loadBtn = document.getElementById("loadBtn");
 const msgEl = document.getElementById("msg");
 
-// Auto-load on page open
 window.addEventListener("DOMContentLoaded", loadData);
 
 // ═══════════════════════════════
@@ -569,6 +633,12 @@ function staggerCards(gridId) {
     });
 }
 
+function filterData(task) {
+    if (!allData) return [];
+    if (task === "all") return allData;
+    return allData.filter(d => (d.task_name || "Task 1") === task);
+}
+
 const ttOpts = {
     backgroundColor: "rgba(13,17,23,0.95)",
     borderColor: "rgba(255,255,255,0.1)",
@@ -579,29 +649,66 @@ const ttOpts = {
     cornerRadius: 8,
 };
 
+// ═══════════════════════════════
+// TASK SWITCHER
+// ═══════════════════════════════
+function switchTask(task) {
+    currentTask = task;
+    document.querySelectorAll(".task-tab").forEach(t => t.classList.toggle("active", t.dataset.task === task));
+
+    // Reset all sections and charts
+    Object.keys(animated).forEach(k => animated[k] = false);
+    Object.values(charts).forEach(c => c?.destroy());
+    charts = {};
+    document.querySelectorAll(".sc").forEach(c => c.classList.remove("in"));
+    document.querySelectorAll(".mbf").forEach(b => b.style.width = "0%");
+    document.querySelectorAll(".sec").forEach(s => s.classList.remove("visible"));
+
+    // Show/hide comparison section based on task
+    const compareSection = document.getElementById("secCompare");
+    if (task === "all") {
+        compareSection.style.display = "";
+    } else {
+        compareSection.style.display = "none";
+    }
+
+    const data = filterData(task);
+    if (data.length === 0) {
+        showMsg(`🔍 No sessions for ${task === "all" ? "any task" : task} yet.`, "info");
+        setTimeout(hideMsg, 3000);
+        return;
+    }
+
+    // Re-observe all sections
+    document.querySelectorAll(".sec[data-anim]").forEach(sec => {
+        if (sec.style.display === "none") return;
+        observer.unobserve(sec);
+        observer.observe(sec);
+    });
+}
+
 // ═══════════════════════════════════════
 // INTERSECTION OBSERVER — Scroll Trigger
 // ═══════════════════════════════════════
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-        if (!entry.isIntersecting || !cachedData) return;
+        const data = filterData(currentTask);
+        if (!entry.isIntersecting || !data || data.length === 0) return;
 
         const key = entry.target.dataset.anim;
         if (!key || animated[key]) return;
 
         animated[key] = true;
-
-        // Make section visible (CSS transition handles the fade)
         entry.target.classList.add("visible");
 
-        // Trigger the matching animation
         switch (key) {
-            case "metrics": animateMetrics(cachedData); break;
-            case "timeline": buildTimeline(cachedData); break;
-            case "fails": buildFails(cachedData); break;
-            case "completion": buildCompletion(cachedData); break;
-            case "trend": buildTrend(cachedData); break;
-            case "gauges": buildGauges(cachedData); break;
+            case "metrics": animateMetrics(data); break;
+            case "compare": buildComparison(); break;
+            case "timeline": buildTimeline(data); break;
+            case "fails": buildFails(data); break;
+            case "completion": buildCompletion(data); break;
+            case "trend": buildTrend(data); break;
+            case "gauges": buildGauges(data); break;
         }
     });
 }, {
@@ -616,8 +723,7 @@ async function loadData() {
     showMsg("Fetching sessions…", "loading");
     loadBtn.disabled = true;
 
-    // Reset
-    cachedData = null;
+    allData = null;
     Object.keys(animated).forEach(k => animated[k] = false);
     Object.values(charts).forEach(c => c?.destroy());
     charts = {};
@@ -640,13 +746,26 @@ async function loadData() {
             return;
         }
 
+        allData = data;
+
+        // Update tab counts
+        const t1Count = data.filter(d => (d.task_name || "Task 1") === "Task 1").length;
+        const t2Count = data.filter(d => (d.task_name || "Task 1") === "Task 2").length;
+        document.getElementById("cAll").textContent = data.length;
+        document.getElementById("cT1").textContent = t1Count;
+        document.getElementById("cT2").textContent = t2Count;
+        document.getElementById("taskSwitcher").style.display = "flex";
+
+        // Show/hide comparison
+        const compareSection = document.getElementById("secCompare");
+        compareSection.style.display = currentTask === "all" ? "" : "none";
+
         showMsg(`✅ ${data.length} session${data.length > 1 ? "s" : ""} loaded — scroll down to explore ▼`, "success");
         setTimeout(hideMsg, 4000);
 
-        cachedData = data;
-
-        // Start observing each section
+        // Start observing
         document.querySelectorAll(".sec[data-anim]").forEach(sec => {
+            if (sec.style.display === "none") return;
             observer.unobserve(sec);
             observer.observe(sec);
         });
@@ -689,6 +808,64 @@ function animateMetrics(data) {
     staggerCards("metricsGrid");
 }
 
+// ── Task Comparison (All Tasks mode) ──
+function buildComparison() {
+    if (!allData) return;
+    const t1 = allData.filter(d => (d.task_name || "Task 1") === "Task 1");
+    const t2 = allData.filter(d => (d.task_name || "Task 1") === "Task 2");
+
+    const t1Avg = t1.length ? t1.reduce((s, d) => s + (d.time || 0), 0) / t1.length : 0;
+    const t2Avg = t2.length ? t2.reduce((s, d) => s + (d.time || 0), 0) / t2.length : 0;
+    const t1Fails = t1.length ? t1.reduce((s, d) => s + (d.fails || 0), 0) / t1.length : 0;
+    const t2Fails = t2.length ? t2.reduce((s, d) => s + (d.fails || 0), 0) / t2.length : 0;
+
+    if (charts.compTime) charts.compTime.destroy();
+    charts.compTime = new Chart(document.getElementById("cCompTime"), {
+        type: "bar",
+        data: {
+            labels: ["🏝️ Task 1", "🧠 Task 2"],
+            datasets: [{
+                data: [t1Avg, t2Avg],
+                backgroundColor: ["rgba(88,166,255,0.5)", "rgba(188,140,255,0.5)"],
+                borderColor: ["#58a6ff", "#bc8cff"],
+                borderWidth: 2, borderRadius: 8, borderSkipped: false,
+                barPercentage: 0.5,
+            }]
+        },
+        options: {
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}s avg` } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.03)" }, ticks: { callback: v => v + "s" } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    if (charts.compFails) charts.compFails.destroy();
+    charts.compFails = new Chart(document.getElementById("cCompFails"), {
+        type: "bar",
+        data: {
+            labels: ["🏝️ Task 1", "🧠 Task 2"],
+            datasets: [{
+                data: [t1Fails, t2Fails],
+                backgroundColor: ["rgba(248,81,73,0.4)", "rgba(210,153,34,0.4)"],
+                borderColor: ["#f85149", "#d29922"],
+                borderWidth: 2, borderRadius: 8, borderSkipped: false,
+                barPercentage: 0.5,
+            }]
+        },
+        options: {
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)} avg fails` } } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.03)" }, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
 // ── Timeline Line Chart ──
 function buildTimeline(data) {
     const chrono = [...data].reverse();
@@ -696,6 +873,7 @@ function buildTimeline(data) {
     const timeData = chrono.map(d => d.time || 0);
     const avg = timeData.reduce((a, b) => a + b, 0) / timeData.length;
 
+    if (charts.time) charts.time.destroy();
     charts.time = new Chart(document.getElementById("cTime"), {
         type: "line",
         data: {
@@ -740,6 +918,7 @@ function buildFails(data) {
     const labels = chrono.map((_, i) => `#${i + 1}`);
     const failsData = chrono.map(d => d.fails || 0);
 
+    if (charts.fails) charts.fails.destroy();
     charts.fails = new Chart(document.getElementById("cFails"), {
         type: "bar",
         data: {
@@ -766,6 +945,7 @@ function buildFails(data) {
     data.forEach(d => { const f = d.fails || 0; fMap[f] = (fMap[f] || 0) + 1; });
     const fKeys = Object.keys(fMap).map(Number).sort((a, b) => a - b);
 
+    if (charts.fDist) charts.fDist.destroy();
     charts.fDist = new Chart(document.getElementById("cFailDist"), {
         type: "bar",
         data: {
@@ -796,6 +976,7 @@ function buildCompletion(data) {
     const pct = ((comp / data.length) * 100).toFixed(0);
     document.getElementById("donutPct").textContent = pct + "%";
 
+    if (charts.donut) charts.donut.destroy();
     charts.donut = new Chart(document.getElementById("cDonut"), {
         type: "doughnut",
         data: {
@@ -828,6 +1009,7 @@ function buildCompletion(data) {
         buckets[`${bs}-${bs + bSize}s`] = (buckets[`${bs}-${bs + bSize}s`] || 0) + 1;
     }
 
+    if (charts.tDist) charts.tDist.destroy();
     charts.tDist = new Chart(document.getElementById("cTimeDist"), {
         type: "bar",
         data: {
@@ -862,6 +1044,7 @@ function buildTrend(data) {
         cumAvg.push(runSum / (i + 1));
     });
 
+    if (charts.perf) charts.perf.destroy();
     charts.perf = new Chart(document.getElementById("cPerf"), {
         type: "line",
         data: {
