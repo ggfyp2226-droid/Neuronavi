@@ -78,13 +78,13 @@ CREATE INDEX IF NOT EXISTS idx_game_stats_task_name ON game_stats(task_name);
 -- Optional: Insert test data to verify everything works
 -- ============================================================
 
--- Task 1 test data
-INSERT INTO game_stats (time, fails, "timesCompleted", task_name)
+-- Task 1 test data (now includes pass_count)
+INSERT INTO game_stats (time, fails, "timesCompleted", task_name, pass_count)
 VALUES
-    (18.82, 1, 1, 'Task 1'),
-    (45.30, 3, 1, 'Task 1'),
-    (62.70, 5, 2, 'Task 1'),
-    (30.10, 0, 1, 'Task 1');
+    (18.82, 1, 1, 'Task 1', 1),
+    (45.30, 3, 1, 'Task 1', 1),
+    (62.70, 5, 2, 'Task 1', 2),
+    (30.10, 0, 1, 'Task 1', 1);
 
 -- Task 2 (Memory) test data
 INSERT INTO game_stats (time, fails, "timesCompleted", task_name, pass_count)

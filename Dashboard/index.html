@@ -957,7 +957,7 @@
                         <div class="mbf b-g" id="lCB"></div>
                     </div>
                 </div>
-                <div class="sc" data-d="3" id="lPC" style="display:none;">
+                <div class="sc" data-d="3" id="lPC">
                     <div class="lb"><span class="d b-p"></span>Pass Count</div>
                     <div class="vl c-p" id="lP">—</div>
                     <div class="sub">correct</div>
@@ -1005,19 +1005,27 @@
                     </div>
                 </div>
                 <div class="sc" data-d="4">
-                    <div class="lb"><span class="d b-p"></span>Best Time</div>
-                    <div class="vl c-p" id="oB">—</div>
-                    <div class="sub">fastest</div>
+                    <div class="lb"><span class="d b-p"></span>Total Passes</div>
+                    <div class="vl c-p" id="oP">—</div>
+                    <div class="sub">accumulated</div>
                     <div class="mb">
-                        <div class="mbf b-p" id="oBB"></div>
+                        <div class="mbf b-p" id="oPB"></div>
                     </div>
                 </div>
                 <div class="sc" data-d="5">
-                    <div class="lb"><span class="d b-c"></span>Worst Time</div>
-                    <div class="vl c-c" id="oW">—</div>
+                    <div class="lb"><span class="d b-c"></span>Best Time</div>
+                    <div class="vl c-c" id="oB">—</div>
+                    <div class="sub">fastest</div>
+                    <div class="mb">
+                        <div class="mbf b-c" id="oBB"></div>
+                    </div>
+                </div>
+                <div class="sc" data-d="6">
+                    <div class="lb"><span class="d b-o"></span>Worst Time</div>
+                    <div class="vl c-o" id="oW">—</div>
                     <div class="sub">slowest</div>
                     <div class="mb">
-                        <div class="mbf b-c" id="oWB"></div>
+                        <div class="mbf b-o" id="oWB"></div>
                     </div>
                 </div>
             </div>
@@ -1037,6 +1045,7 @@
                             <th>Task</th>
                             <th>Time</th>
                             <th>Fails</th>
+                            <th>Passes</th>
                             <th>Completed</th>
                             <th>Date</th>
                         </tr>
@@ -1131,17 +1140,10 @@
             bar(document.getElementById("lFB"), ((L.fails || 0) / mF) * 100, 400);
             bar(document.getElementById("lCB"), ((L.timesCompleted || 0) / mC) * 100, 500);
 
-            // Show pass_count card if Task 2 or all tasks with latest being Task 2
-            const latestTask = L.task_name || "Task 1";
-            const passCard = document.getElementById("lPC");
-            if (latestTask === "Task 2" || (currentTask === "all" && L.pass_count > 0)) {
-                passCard.style.display = "block";
-                anim(document.getElementById("lP"), L.pass_count || 0, 800, 0);
-                const mP = Math.max(...d.map(x => x.pass_count || 0), 1);
-                bar(document.getElementById("lPB"), ((L.pass_count || 0) / mP) * 100, 600);
-            } else {
-                passCard.style.display = "none";
-            }
+            // Show pass_count card for all tasks
+            anim(document.getElementById("lP"), L.pass_count || 0, 800, 0);
+            const mP = Math.max(...d.map(x => x.pass_count || 0), 1);
+            bar(document.getElementById("lPB"), ((L.pass_count || 0) / mP) * 100, 600);
 
             if (d.length > 1) {
                 const avg = d.reduce((s, x) => s + (x.time || 0), 0) / d.length, df = L.time - avg, p = Math.abs((df / avg) * 100).toFixed(0);
@@ -1158,12 +1160,15 @@
         function renderOverall(d) {
             if (d.length === 0) return;
             const n = d.length, tF = d.reduce((s, x) => s + (x.fails || 0), 0), aT = d.reduce((s, x) => s + (x.time || 0), 0) / n, tC = d.reduce((s, x) => s + (x.timesCompleted || 0), 0);
+            const tP = d.reduce((s, x) => s + (x.pass_count || 0), 0);
             const bT = Math.min(...d.map(x => x.time || Infinity)), wT = Math.max(...d.map(x => x.time || 0));
             anim(document.getElementById("oS"), n, 800, 0); anim(document.getElementById("oA"), aT, 1200, 1, "s");
             anim(document.getElementById("oC"), tC, 1000, 0); anim(document.getElementById("oF"), tF, 1000, 0);
+            anim(document.getElementById("oP"), tP, 1000, 0);
             anim(document.getElementById("oB"), bT, 1000, 2, "s"); anim(document.getElementById("oW"), wT, 1000, 2, "s");
             bar(document.getElementById("oSB"), (n / 50) * 100, 400); bar(document.getElementById("oAB"), (aT / 120) * 100, 500);
             bar(document.getElementById("oCB"), (tC / Math.max(n, 10)) * 100, 600); bar(document.getElementById("oFB"), (tF / Math.max(n * 3, 10)) * 100, 700);
+            bar(document.getElementById("oPB"), (tP / Math.max(n * 3, 10)) * 100, 750);
             bar(document.getElementById("oBB"), (bT / wT) * 100, 800); bar(document.getElementById("oWB"), 100, 900);
             document.getElementById("sO").classList.add("show"); setTimeout(() => stagger("gO"), 150);
         }
@@ -1173,12 +1178,13 @@
             document.getElementById("tC").textContent = `${d.length} session${d.length > 1 ? "s" : ""}`;
             document.getElementById("tb").innerHTML = d.map((r, i) => {
                 const fc = r.fails === 0 ? "f0" : r.fails <= 3 ? "fl" : "fh";
+                const pc = r.pass_count || 0;
                 const cp = (r.timesCompleted || 0) >= 1 ? `<span class="pill pill-g">✓ ${r.timesCompleted}x</span>` : `<span class="pill pill-r">✗ 0</span>`;
                 const dt = r.created_at ? new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
                 const nt = i === 0 ? `<span class="nt">latest</span>` : "";
                 const tn = r.task_name || "Task 1";
                 const tPill = tn === "Task 2" ? `<span class="pill-task pill-t2">🧠 Task 2</span>` : `<span class="pill-task pill-t1">🏝️ Task 1</span>`;
-                return `<tr style="animation-delay:${i * .04}s"><td style="color:var(--text3);font-size:12px">${i + 1}${nt}</td><td>${tPill}</td><td class="td-t">${(r.time || 0).toFixed(2)}s</td><td class="td-f ${fc}">${r.fails}</td><td>${cp}</td><td class="td-d">${dt}</td></tr>`;
+                return `<tr style="animation-delay:${i * .04}s"><td style="color:var(--text3);font-size:12px">${i + 1}${nt}</td><td>${tPill}</td><td class="td-t">${(r.time || 0).toFixed(2)}s</td><td class="td-f ${fc}">${r.fails}</td><td style="color:var(--purple);font-weight:700">${pc}</td><td>${cp}</td><td class="td-d">${dt}</td></tr>`;
             }).join("");
             document.getElementById("sT").classList.add("show");
         }

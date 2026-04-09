@@ -69,8 +69,8 @@ public class TaskManager : MonoBehaviour
             // ── Send stats to Supabase based on task type ──
             if (currentTaskName == "Footprint")
             {
-                // Task 1 — original call (no task name needed, defaults to "Task 1")
-                SupabaseSender.Instance.SendStats(timeTaken, totalFailCount, timesCompleted);
+                // Task 1 — includes task name and pass count (same as Task 2)
+                SupabaseSender.Instance.SendStats(timeTaken, totalFailCount, timesCompleted, "Task 1", passCount);
             }
             else if (currentTaskName == "Memory")
             {

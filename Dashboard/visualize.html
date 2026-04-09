@@ -452,6 +452,31 @@
         <button class="task-tab" data-task="Task 2" onclick="switchTask('Task 2')">🧠 Task 2 <span class="tab-count" id="cT2">0</span></button>
     </div>
 
+    <!-- ═══ Pass Count ═══ -->
+    <section class="sec" id="secPasses" data-anim="passes">
+        <div class="sec-label">✅ Pass Count Analysis</div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="ch-title">Pass Count per Session</div>
+                <div class="ch-sub">Correct responses tracked across each session</div>
+                <div class="ch-wrap" style="height:260px"><canvas id="cPasses"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="ch-title">Pass vs Fail Ratio</div>
+                <div class="ch-sub">Aggregate passes and fails across all filtered sessions</div>
+                <div class="ch-wrap">
+                    <div class="donut-box">
+                        <canvas id="cPassFail"></canvas>
+                        <div class="donut-center">
+                            <div class="big" id="passRatePct">—</div>
+                            <div class="small">pass rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ═══ Performance Metrics ═══ -->
     <section class="sec" id="secMetrics" data-anim="metrics">
         <div class="sec-label">📊 Key Metrics</div>
@@ -462,6 +487,7 @@
             <div class="sc"><div class="lb"><span class="d b-r"></span>Worst Time</div><div class="vl c-r" id="mWorst">0s</div><div class="sub">slowest run</div><div class="mb"><div class="mbf b-r" id="mWorstBar"></div></div></div>
             <div class="sc"><div class="lb"><span class="d b-r"></span>Total Fails</div><div class="vl c-r" id="mFails">0</div><div class="sub">accumulated</div><div class="mb"><div class="mbf b-r" id="mFailsBar"></div></div></div>
             <div class="sc"><div class="lb"><span class="d b-g"></span>Completions</div><div class="vl c-g" id="mComp">0</div><div class="sub">total achieved</div><div class="mb"><div class="mbf b-g" id="mCompBar"></div></div></div>
+            <div class="sc"><div class="lb"><span class="d b-p"></span>Total Passes</div><div class="vl c-p" id="mPass">0</div><div class="sub">accumulated</div><div class="mb"><div class="mbf b-p" id="mPassBar"></div></div></div>
         </div>
     </section>
 
@@ -707,6 +733,7 @@ const observer = new IntersectionObserver((entries) => {
             case "timeline": buildTimeline(data); break;
             case "fails": buildFails(data); break;
             case "completion": buildCompletion(data); break;
+            case "passes": buildPasses(data); break;
             case "trend": buildTrend(data); break;
             case "gauges": buildGauges(data); break;
         }
@@ -798,12 +825,16 @@ function animateMetrics(data) {
     animNum(document.getElementById("mFails"), totF, 1000, 0);
     animNum(document.getElementById("mComp"), totC, 1000, 0);
 
+    const totP = data.reduce((s, d) => s + (d.pass_count || 0), 0);
+    animNum(document.getElementById("mPass"), totP, 1000, 0);
+
     animBar(document.getElementById("mSessBar"), (n / 50) * 100, 200);
     animBar(document.getElementById("mAvgBar"), (avgT / 120) * 100, 300);
     animBar(document.getElementById("mBestBar"), (bestT / worstT) * 100, 400);
     animBar(document.getElementById("mWorstBar"), 100, 500);
     animBar(document.getElementById("mFailsBar"), (totF / Math.max(n * 5, 10)) * 100, 600);
     animBar(document.getElementById("mCompBar"), (totC / Math.max(n, 10)) * 100, 700);
+    animBar(document.getElementById("mPassBar"), (totP / Math.max(n * 3, 10)) * 100, 800);
 
     staggerCards("metricsGrid");
 }
@@ -1027,6 +1058,62 @@ function buildCompletion(data) {
             scales: {
                 y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(255,255,255,0.03)" } },
                 x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+// ── Pass Count Charts ──
+function buildPasses(data) {
+    const chrono = [...data].reverse();
+    const labels = chrono.map((_, i) => `#${i + 1}`);
+    const passData = chrono.map(d => d.pass_count || 0);
+
+    if (charts.passes) charts.passes.destroy();
+    charts.passes = new Chart(document.getElementById("cPasses"), {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                data: passData,
+                backgroundColor: passData.map(p => p === 0 ? "rgba(248,81,73,0.4)" : p <= 2 ? "rgba(210,153,34,0.5)" : "rgba(63,185,80,0.6)"),
+                borderColor: passData.map(p => p === 0 ? "#f85149" : p <= 2 ? "#d29922" : "#3fb950"),
+                borderWidth: 1.5, borderRadius: 6, borderSkipped: false,
+            }]
+        },
+        options: {
+            animation: { duration: 1400, easing: "easeOutQuart" },
+            plugins: { tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed.y} passes` } } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: "rgba(255,255,255,0.03)" } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Pass vs Fail donut
+    const totalPasses = data.reduce((s, d) => s + (d.pass_count || 0), 0);
+    const totalFails = data.reduce((s, d) => s + (d.fails || 0), 0);
+    const passRate = totalPasses + totalFails > 0 ? ((totalPasses / (totalPasses + totalFails)) * 100).toFixed(0) : "0";
+    document.getElementById("passRatePct").textContent = passRate + "%";
+
+    if (charts.passFail) charts.passFail.destroy();
+    charts.passFail = new Chart(document.getElementById("cPassFail"), {
+        type: "doughnut",
+        data: {
+            labels: ["Passes", "Fails"],
+            datasets: [{
+                data: [totalPasses, totalFails],
+                backgroundColor: ["rgba(63,185,80,0.7)", "rgba(248,81,73,0.4)"],
+                borderColor: ["#3fb950", "#f85149"],
+                borderWidth: 2, hoverOffset: 8,
+            }]
+        },
+        options: {
+            cutout: "72%",
+            animation: { duration: 1600, easing: "easeOutQuart" },
+            plugins: {
+                tooltip: { ...ttOpts, callbacks: { label: ctx => ` ${ctx.parsed} (${((ctx.parsed / (totalPasses + totalFails)) * 100).toFixed(0)}%)` } }
             }
         }
     });
